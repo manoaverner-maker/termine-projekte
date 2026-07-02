@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#F3F4F7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Termine">
+<title>Termine &amp; Projekte</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+:root{
+  --ink-900:#161A20;
+  --ink-500:#6B7280;
+  --ink-300:#9CA3AF;
+  --paper-100:#F3F4F7;
+  --paper-000:#FFFFFF;
+  --line-200:#E4E7EC;
+  --accent-start:#E3A233;
+  --accent-planung:#3E7CB8;
+  --accent-beschaffung:#C6875A;
+  --accent-montage:#7C6FCB;
+  --accent-abschluss:#8A8256;
+  --signal-urgent:#D0483F;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--paper-100);color:var(--ink-900);-webkit-font-smoothing:antialiased;}
+.app{max-width:640px;margin:0 auto;padding:0 0 60px;}
+
+/* grid-accordion helper */
+.acc{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s cubic-bezier(.4,0,.2,1);}
+.acc.open{grid-template-rows:1fr;}
+.acc-inner{overflow:hidden;min-height:0;}
+.chev{transition:transform .25s ease;color:var(--ink-300);flex:0 0 auto;}
+
+.header{position:sticky;top:0;z-index:20;background:rgba(243,244,247,0.92);backdrop-filter:blur(10px);padding:18px 20px 12px;border-bottom:1px solid var(--line-200);}
+.header h1{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:23px;letter-spacing:-0.02em;}
+.header .sub{font-size:11.5px;color:var(--ink-500);margin-top:2px;letter-spacing:0.02em;text-transform:uppercase;}
+
+/* ===== Home / Termine section ===== */
+.section-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 8px;}
+.section-head h2{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;}
+.link-btn{background:none;border:none;font-size:12.5px;font-weight:600;color:var(--ink-500);cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px;font-family:inherit;}
+.link-btn:hover{color:var(--ink-900);}
+.link-btn svg{transition:transform .25s ease;}
+.link-btn.expanded svg{transform:rotate(180deg);}
+
+.home-rows{padding:0 20px;display:flex;flex-direction:column;gap:8px;}
+.home-row{
+  background:var(--paper-000);border-radius:12px;padding:11px 13px;
+  display:flex;align-items:center;gap:10px;border-left:3px solid var(--cat-color,var(--accent-planung));
+  cursor:pointer;box-shadow:0 1px 2px rgba(20,24,31,0.04);
+}
+.home-row:hover{background:#FAFAFC;}
+.home-row .rt{flex:1;min-width:0;}
+.home-row .rt-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.home-row .rt-proj{font-size:11.5px;color:var(--ink-500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.home-row .rt-count{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14.5px;flex:0 0 auto;text-align:right;}
+.home-row .rt-count.urgent{color:var(--signal-urgent);}
+
+/* ===== Projekte section ===== */
+.add-project-form{display:none;gap:8px;padding:10px 20px 4px;}
+.add-project-form.show{display:flex;}
+.add-project-form input{flex:1;padding:9px 11px;border:1px solid var(--line-200);border-radius:9px;font-size:13.5px;background:var(--paper-000);font-family:inherit;}
+.add-project-form button{padding:9px 14px;border-radius:9px;border:none;background:var(--ink-900);color:#fff;font-weight:600;font-size:12.5px;cursor:pointer;font-family:inherit;}
+
+.projects{padding:0 20px;display:flex;flex-direction:column;gap:10px;}
+.project{background:var(--paper-000);border-radius:14px;overflow:hidden;box-shadow:0 1px 2px rgba(20,24,31,0.04);}
+.project-head{display:flex;align-items:center;gap:10px;padding:14px 15px;cursor:pointer;}
+.project-head .pname{flex:1;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14.5px;overflow-wrap:anywhere;}
+.project-head .pbadge{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-500);background:var(--paper-100);padding:3px 8px;border-radius:7px;white-space:nowrap;}
+.project-head .pbadge.urgent{color:var(--signal-urgent);background:#FBEEEC;}
+
+.project-body{padding:0 15px 16px;}
+.block{margin-top:14px;}
+.block-label{font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--ink-300);margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;}
+.info-text{width:100%;border:1px solid var(--line-200);border-radius:10px;padding:9px 10px;font-family:'Inter',sans-serif;font-size:13px;background:var(--paper-100);min-height:44px;resize:vertical;}
+.info-text:focus{outline:2px solid var(--ink-900);outline-offset:1px;}
+
+.termin-row{border:1px solid var(--line-200);border-left:3px solid var(--cat-color,var(--accent-planung));border-radius:10px;padding:9px 11px;margin-bottom:7px;position:relative;}
+.termin-row.archived{opacity:0.55;border-style:dashed;}
+.termin-row .tr-top{display:flex;justify-content:space-between;gap:8px;}
+.termin-row .tr-title{font-size:12.5px;font-weight:600;overflow-wrap:anywhere;}
+.termin-row .tr-date{font-size:11px;color:var(--ink-500);margin-top:2px;}
+.termin-row .tr-bem{font-size:11.5px;color:var(--ink-500);margin-top:4px;font-style:italic;overflow-wrap:anywhere;}
+.termin-row .tr-count{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;flex:0 0 auto;}
+.termin-row .tr-count.urgent{color:var(--signal-urgent);}
+.icon-btn{background:none;border:none;cursor:pointer;color:var(--ink-300);padding:2px;flex:0 0 auto;}
+.icon-btn:hover{color:var(--signal-urgent);}
+.icon-btn.restore:hover{color:var(--accent-planung);}
+
+.mini-add-toggle{background:var(--paper-100);border:1px dashed var(--line-200);border-radius:9px;padding:7px 10px;font-size:12px;font-weight:600;color:var(--ink-500);cursor:pointer;text-align:center;margin-bottom:8px;}
+.mini-add-toggle:hover{color:var(--ink-900);}
+.mini-form{display:flex;flex-direction:column;gap:7px;margin-bottom:10px;background:var(--paper-100);padding:10px;border-radius:10px;}
+.mini-form input,.mini-form select{padding:8px 9px;border:1px solid var(--line-200);border-radius:8px;font-size:12.5px;background:#fff;font-family:inherit;}
+.mini-form .mf-row{display:flex;gap:7px;}
+.mini-form .mf-row>*{flex:1;min-width:0;}
+.mini-form .mf-actions{display:flex;gap:7px;}
+.mini-form .mf-actions button{flex:1;padding:8px;border-radius:8px;border:none;font-weight:600;font-size:12px;cursor:pointer;font-family:inherit;}
+.mf-save{background:var(--ink-900);color:#fff;}
+.mf-cancel{background:#fff;color:var(--ink-500);border:1px solid var(--line-200) !important;}
+
+.archive-toggle{font-size:11.5px;color:var(--ink-300);font-weight:600;cursor:pointer;text-align:center;padding:5px;}
+.archive-toggle:hover{color:var(--ink-500);}
+
+/* Notizen — Teams-Stil */
+.notes-feed{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+.note-bubble{background:var(--paper-100);border-radius:10px;padding:8px 10px;position:relative;}
+.note-bubble.deleted{opacity:0.5;}
+.note-bubble .nb-meta{font-size:10px;color:var(--ink-300);font-family:'IBM Plex Mono',monospace;margin-bottom:2px;}
+.note-bubble .nb-text{font-size:12.5px;line-height:1.4;padding-right:22px;overflow-wrap:anywhere;}
+.note-bubble .icon-btn{position:absolute;top:7px;right:7px;}
+.note-input-row{display:flex;gap:7px;}
+.note-input-row input{flex:1;padding:9px 11px;border:1px solid var(--line-200);border-radius:9px;font-size:12.5px;background:#fff;font-family:inherit;}
+.note-input-row button{padding:9px 13px;border-radius:9px;border:none;background:var(--ink-900);color:#fff;font-weight:600;font-size:12px;cursor:pointer;font-family:inherit;}
+
+.empty{color:var(--ink-300);font-size:12.5px;padding:6px 2px;}
+.hint{margin:20px 20px 0;font-size:11.5px;color:var(--ink-300);line-height:1.5;text-align:center;}
+.footer{display:flex;justify-content:center;align-items:center;gap:2px;padding:14px 20px 0;}
+.footer .link-btn{font-size:11.5px;color:var(--ink-300);}
+.footer .link-btn:hover{color:var(--ink-500);}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>Termine &amp; Projekte</h1>
+    <div class="sub">Lüftungsplanung · Terminübersicht</div>
+  </div>
+
+  <div class="section-head">
+    <h2>Nächste Termine</h2>
+    <button class="link-btn" id="home-toggle" onclick="toggleHome()" style="display:none;">
+      <span id="home-toggle-label">Alle anzeigen</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="home-rows" id="home-top"></div>
+  <div class="acc" id="home-acc"><div class="acc-inner"><div class="home-rows" id="home-more" style="padding-top:8px;"></div></div></div>
+
+  <div class="section-head" style="padding-top:22px;">
+    <h2>Projekte</h2>
+    <button class="link-btn" onclick="toggleAddProjectForm()">+ Projekt</button>
+  </div>
+  <div class="add-project-form" id="add-project-form">
+    <input type="text" id="new-project-name" placeholder="Projektname" onkeydown="if(event.key==='Enter')addProject()">
+    <button onclick="addProject()">Anlegen</button>
+  </div>
+
+  <div class="projects" id="projects"></div>
+
+  <div class="footer">
+    <button class="link-btn" onclick="exportData()">Daten exportieren</button>
+    <span style="color:var(--ink-300);font-size:11.5px;">·</span>
+    <label class="link-btn" style="cursor:pointer;">Daten importieren<input type="file" accept=".json,application/json" style="display:none" onchange="importData(this)"></label>
+  </div>
+  <div class="hint">Alle Daten bleiben lokal in diesem Browser gespeichert.<br>Gelöschtes wird nur archiviert und ist jederzeit wiederherstellbar.</div>
+</div>
+
+<script>
+'use strict';
+
+/* ===== Konstanten & Zustand ===== */
+const LS_KEY = 'termine_v1';
+const CATS = {
+  start:{label:'Start / Klärung',color:'var(--accent-start)'},
+  planung:{label:'Planung',color:'var(--accent-planung)'},
+  beschaffung:{label:'Beschaffung',color:'var(--accent-beschaffung)'},
+  montage:{label:'Montage',color:'var(--accent-montage)'},
+  abschluss:{label:'Abschluss',color:'var(--accent-abschluss)'},
+};
+const catOf = k => CATS[k] || CATS.planung;
+
+// Ansichts-Zustand (nicht persistiert)
+const ui = {
+  homeExpanded:false,
+  open:new Set(),        // aufgeklappte Projekte
+  archOpen:new Set(),    // Projekte mit sichtbaren archivierten Terminen
+  delOpen:new Set(),     // Projekte mit sichtbaren gelöschten Notizen
+  showAddProject:false,
+};
+
+let idSeq = 0;
+const newId = p => p + Date.now().toString(36) + (idSeq++).toString(36);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ===== Persistenz (nie destruktiv) ===== */
+function load(){
+  let raw = null;
+  try { raw = localStorage.getItem(LS_KEY); } catch(e){}
+  if (!raw) return {v:1, projects:[]};
+  try {
+    const d = JSON.parse(raw);
+    if (!d || !Array.isArray(d.projects)) throw new Error('unerwartetes Format');
+    return d;
+  } catch(e) {
+    // Defekten Stand sichern statt überschreiben
+    try { localStorage.setItem(LS_KEY + '_defekt_' + Date.now(), raw); } catch(_){}
+    return {v:1, projects:[]};
+  }
+}
+let data = load();
+let saveTimer = null;
+function save(){ try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e){} }
+function saveSoon(){ clearTimeout(saveTimer); saveTimer = setTimeout(()=>{ saveTimer = null; save(); }, 400); }
+window.addEventListener('pagehide', ()=>{ if (saveTimer){ clearTimeout(saveTimer); saveTimer = null; save(); } });
+
+const proj = id => data.projects.find(p => p.id === id);
+
+/* ===== Zeit & Countdown ===== */
+function readout(dateStr){
+  const ms = new Date(dateStr) - Date.now();
+  if (ms < 0) return {text:'Überfällig', urgent:true};
+  const days  = Math.floor(ms / 86400000);
+  const hours = Math.floor((ms % 86400000) / 3600000);
+  const mins  = Math.floor((ms % 3600000) / 60000);
+  if (days >= 1) return {text:`${days}T ${String(hours).padStart(2,'0')}Std`, urgent:false};
+  return {text:`${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}`, urgent:true};
+}
+function fmtDate(dateStr){
+  const d = new Date(dateStr), tage = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+  return `${tage[d.getDay()]} ${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')} · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+function fmtNoteDate(dateStr){
+  const d = new Date(dateStr);
+  return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')} · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+// Aktualisiert alle sichtbaren Countdowns ohne Neuaufbau des DOM
+function tick(){
+  document.querySelectorAll('[data-count]').forEach(el => {
+    const r = readout(el.dataset.count);
+    el.textContent = r.text;
+    el.classList.toggle('urgent', r.urgent);
+  });
+}
+setInterval(tick, 30000);
+document.addEventListener('visibilitychange', ()=>{ if (!document.hidden) tick(); });
+
+/* ===== Rendern ===== */
+function allActiveTermine(){
+  const out = [];
+  data.projects.forEach(p => p.termine.forEach(t => { if (!t.archived) out.push({t, p}); }));
+  return out.sort((a,b) => new Date(a.t.datum) - new Date(b.t.datum));
+}
+
+function render(){ renderHome(); renderProjects(); }
+
+function renderHome(){
+  const all = allActiveTermine();
+  const rowHtml = ({t, p}) => {
+    const r = readout(t.datum);
+    return `<div class="home-row" style="--cat-color:${catOf(t.kat).color}" onclick="jumpToProject('${p.id}')">
+      <div class="rt">
+        <div class="rt-title">${esc(t.titel)}</div>
+        <div class="rt-proj">${esc(p.name)}</div>
+      </div>
+      <div class="rt-count ${r.urgent?'urgent':''}" data-count="${esc(t.datum)}">${r.text}</div>
+    </div>`;
+  };
+  document.getElementById('home-top').innerHTML =
+    all.slice(0,4).map(rowHtml).join('') || `<div class="empty">Keine anstehenden Termine.</div>`;
+  document.getElementById('home-more').innerHTML = all.slice(4).map(rowHtml).join('');
+
+  const more = all.length > 4;
+  if (!more) ui.homeExpanded = false;
+  const btn = document.getElementById('home-toggle');
+  btn.style.display = more ? '' : 'none';
+  btn.classList.toggle('expanded', ui.homeExpanded);
+  document.getElementById('home-toggle-label').textContent =
+    ui.homeExpanded ? 'Weniger anzeigen' : `Alle anzeigen (${all.length})`;
+  document.getElementById('home-acc').classList.toggle('open', ui.homeExpanded);
+}
+function toggleHome(){ ui.homeExpanded = !ui.homeExpanded; renderHome(); }
+
+function jumpToProject(pid){
+  ui.open.add(pid);
+  renderProjects();
+  setTimeout(()=>document.getElementById('proj-'+pid)?.scrollIntoView({behavior:'smooth', block:'start'}), 80);
+}
+
+function renderProjects(){
+  const wrap = document.getElementById('projects');
+  if (!data.projects.length){
+    wrap.innerHTML = `<div class="empty">Noch keine Projekte. Oben rechts mit «+ Projekt» starten.</div>`;
+    return;
+  }
+  wrap.innerHTML = data.projects.map(projectHtml).join('');
+}
+
+function projectHtml(p){
+  const isOpen = ui.open.has(p.id);
+  const active = p.termine.filter(t => !t.archived).sort((a,b) => new Date(a.datum) - new Date(b.datum));
+  const archived = p.termine.filter(t => t.archived);
+  const notes = p.notes.filter(n => !n.deleted).sort((a,b) => new Date(b.datum) - new Date(a.datum));
+  const delNotes = p.notes.filter(n => n.deleted);
+  const next = active[0];
+  const nb = next ? readout(next.datum) : null;
+  const archOpen = ui.archOpen.has(p.id), delOpen = ui.delOpen.has(p.id);
+
+  return `<div class="project" id="proj-${p.id}">
+    <div class="project-head" onclick="toggleProject('${p.id}')">
+      <div class="pname">${esc(p.name)}</div>
+      ${next ? `<div class="pbadge ${nb.urgent?'urgent':''}" data-count="${esc(next.datum)}">${nb.text}</div>` : ''}
+      <svg class="chev" style="${isOpen?'transform:rotate(180deg)':''}" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+    </div>
+    <div class="acc ${isOpen?'open':''}"><div class="acc-inner"><div class="project-body">
+
+      <div class="block">
+        <div class="block-label">Projektinfo</div>
+        <textarea class="info-text" oninput="updateInfo('${p.id}', this.value)" placeholder="Kurze Eckdaten…">${esc(p.info)}</textarea>
+      </div>
+
+      <div class="block">
+        <div class="block-label">Termine</div>
+        <div id="mform-${p.id}"></div>
+        <div class="mini-add-toggle" onclick="openMiniForm('${p.id}')">+ Termin hinzufügen</div>
+        ${active.map(t => terminRowHtml(p.id, t, false)).join('') || '<div class="empty" style="margin-bottom:8px;">Keine aktiven Termine.</div>'}
+        ${archived.length ? `<div class="archive-toggle" onclick="toggleArchived('${p.id}')">${archOpen ? 'Archivierte ausblenden' : 'Archivierte Termine anzeigen ('+archived.length+')'}</div>
+        <div class="acc ${archOpen?'open':''}"><div class="acc-inner">${archived.map(t => terminRowHtml(p.id, t, true)).join('')}</div></div>` : ''}
+      </div>
+
+      <div class="block">
+        <div class="block-label">Notizen</div>
+        <div class="notes-feed">
+          ${notes.map(n => `<div class="note-bubble">
+            <button class="icon-btn" onclick="deleteNote('${p.id}','${n.id}')" title="Löschen">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            </button>
+            <div class="nb-meta">${fmtNoteDate(n.datum)}</div>
+            <div class="nb-text">${esc(n.text)}</div>
+          </div>`).join('') || '<div class="empty">Noch keine Notizen.</div>'}
+        </div>
+        ${delNotes.length ? `<div class="archive-toggle" onclick="toggleDeletedNotes('${p.id}')">${delOpen ? 'Gelöschte ausblenden' : 'Gelöschte Notizen anzeigen ('+delNotes.length+')'}</div>
+        <div class="acc ${delOpen?'open':''}"><div class="acc-inner"><div class="notes-feed" style="margin-top:8px;">${delNotes.map(n => `<div class="note-bubble deleted">
+            <button class="icon-btn restore" onclick="restoreNote('${p.id}','${n.id}')" title="Wiederherstellen">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1 1 3 6.7M3 12V6m0 6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="nb-meta">${fmtNoteDate(n.datum)}</div><div class="nb-text">${esc(n.text)}</div></div>`).join('')}</div></div></div>` : ''}
+        <div class="note-input-row" style="margin-top:8px;">
+          <input type="text" id="note-input-${p.id}" placeholder="Notiz schreiben…" onkeydown="if(event.key==='Enter')addNote('${p.id}')">
+          <button onclick="addNote('${p.id}')">Senden</button>
+        </div>
+      </div>
+
+    </div></div></div>
+  </div>`;
+}
+
+function terminRowHtml(pid, t, isArchived){
+  const r = readout(t.datum);
+  return `<div class="termin-row ${isArchived?'archived':''}" style="--cat-color:${catOf(t.kat).color}">
+    <div class="tr-top">
+      <div>
+        <div class="tr-title">${esc(t.titel)}</div>
+        <div class="tr-date">${fmtDate(t.datum)} · ${catOf(t.kat).label}</div>
+        ${t.bem ? `<div class="tr-bem">${esc(t.bem)}</div>` : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+        <div class="tr-count ${r.urgent?'urgent':''}" data-count="${esc(t.datum)}">${r.text}</div>
+        ${isArchived
+          ? `<button class="icon-btn restore" onclick="restoreTermin('${pid}','${t.id}')" title="Wiederherstellen"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1 1 3 6.7M3 12V6m0 6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`
+          : `<button class="icon-btn" onclick="deleteTermin('${pid}','${t.id}')" title="Löschen"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>`}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ===== Aktionen: Projekte ===== */
+function toggleProject(id){
+  if (ui.open.has(id)) ui.open.delete(id); else ui.open.add(id);
+  renderProjects();
+}
+function updateInfo(pid, val){ proj(pid).info = val; saveSoon(); }
+
+function toggleAddProjectForm(){
+  ui.showAddProject = !ui.showAddProject;
+  document.getElementById('add-project-form').classList.toggle('show', ui.showAddProject);
+  if (ui.showAddProject) document.getElementById('new-project-name').focus();
+}
+function addProject(){
+  const input = document.getElementById('new-project-name');
+  const name = input.value.trim();
+  if (!name) return;
+  const id = newId('p');
+  data.projects.unshift({id, name, info:'', termine:[], notes:[]});
+  ui.open.add(id);
+  input.value = '';
+  toggleAddProjectForm();
+  save(); render();
+}
+
+/* ===== Aktionen: Termine ===== */
+function openMiniForm(pid){
+  const d = new Date();
+  const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  document.getElementById('mform-'+pid).innerHTML = `<div class="mini-form">
+    <input type="text" id="mf-titel-${pid}" placeholder="Bezeichnung" onkeydown="if(event.key==='Enter')saveTermin('${pid}')">
+    <div class="mf-row">
+      <select id="mf-kat-${pid}">${Object.entries(CATS).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('')}</select>
+      <input type="date" id="mf-datum-${pid}" value="${iso}">
+      <input type="time" id="mf-zeit-${pid}" value="08:00">
+    </div>
+    <input type="text" id="mf-bem-${pid}" placeholder="Bemerkung (optional)">
+    <div class="mf-actions">
+      <button class="mf-cancel" onclick="closeMiniForm('${pid}')">Abbrechen</button>
+      <button class="mf-save" onclick="saveTermin('${pid}')">Speichern</button>
+    </div>
+  </div>`;
+  document.getElementById(`mf-titel-${pid}`).focus();
+}
+function closeMiniForm(pid){ document.getElementById('mform-'+pid).innerHTML = ''; }
+function saveTermin(pid){
+  const titel = document.getElementById(`mf-titel-${pid}`).value.trim();
+  const kat   = document.getElementById(`mf-kat-${pid}`).value;
+  const datum = document.getElementById(`mf-datum-${pid}`).value;
+  const zeit  = document.getElementById(`mf-zeit-${pid}`).value || '08:00';
+  const bem   = document.getElementById(`mf-bem-${pid}`).value.trim();
+  if (!titel || !datum){ alert('Bitte Bezeichnung und Datum ausfüllen.'); return; }
+  proj(pid).termine.push({id:newId('t'), titel, kat, datum:`${datum}T${zeit}:00`, bem, archived:false});
+  save(); render();
+}
+function deleteTermin(pid, tid){ proj(pid).termine.find(t=>t.id===tid).archived = true; save(); render(); }
+function restoreTermin(pid, tid){ proj(pid).termine.find(t=>t.id===tid).archived = false; save(); render(); }
+function toggleArchived(pid){
+  if (ui.archOpen.has(pid)) ui.archOpen.delete(pid); else ui.archOpen.add(pid);
+  renderProjects();
+}
+
+/* ===== Aktionen: Notizen ===== */
+function addNote(pid){
+  const input = document.getElementById('note-input-'+pid);
+  const text = input.value.trim();
+  if (!text) return;
+  proj(pid).notes.push({id:newId('n'), text, datum:new Date().toISOString(), deleted:false});
+  save(); renderProjects();
+}
+function deleteNote(pid, nid){ proj(pid).notes.find(n=>n.id===nid).deleted = true; save(); renderProjects(); }
+function restoreNote(pid, nid){ proj(pid).notes.find(n=>n.id===nid).deleted = false; save(); renderProjects(); }
+function toggleDeletedNotes(pid){
+  if (ui.delOpen.has(pid)) ui.delOpen.delete(pid); else ui.delOpen.add(pid);
+  renderProjects();
+}
+
+/* ===== Backup: Export / Import ===== */
+function exportData(){
+  if (saveTimer){ clearTimeout(saveTimer); saveTimer = null; save(); }
+  const d = new Date();
+  const name = `termine-backup-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}.json`;
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importData(input){
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const d = JSON.parse(reader.result);
+      if (!d || !Array.isArray(d.projects)) throw new Error('unerwartetes Format');
+      if (!confirm('Import ersetzt die aktuellen Daten. Der bisherige Stand wird vorher im Browser gesichert. Fortfahren?')){ input.value=''; return; }
+      try { localStorage.setItem(LS_KEY + '_vor_import_' + Date.now(), JSON.stringify(data)); } catch(_){}
+      data = d;
+      save(); render();
+    } catch(e) {
+      alert('Datei konnte nicht gelesen werden – kein gültiges Backup.');
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+/* ===== Start ===== */
+render();
+
+if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
