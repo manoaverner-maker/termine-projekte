@@ -1,9 +1,10 @@
 /* Service Worker — Offline-Cache für Termine & Projekte */
-const CACHE = 'termine-v2';
+const CACHE = 'termine-v3';
 const ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
+  './icons/logo.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/apple-touch-icon.png',

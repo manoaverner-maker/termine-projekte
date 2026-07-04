@@ -9,6 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Termine">
 <title>Termine &amp; Projekte</title>
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/logo.svg" type="image/svg+xml">
 <link rel="icon" href="icons/icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
@@ -34,6 +35,8 @@
   --signal-done:#3E9A5E;
   --urgent-bg:#FBEEEC;
   --shadow:0 1px 2px rgba(20,24,31,0.04);
+  --page-bg:#E8EAF0;
+  --page-shadow:0 0 60px rgba(20,24,31,0.10);
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
@@ -55,6 +58,8 @@
   --signal-done:#4FB878;
   --urgent-bg:rgba(226,102,92,0.14);
   --shadow:0 1px 3px rgba(0,0,0,0.4);
+  --page-bg:#090B0F;
+  --page-shadow:0 0 60px rgba(0,0,0,0.55);
 }
 .theme-anim,.theme-anim *{transition:background-color .35s ease,color .35s ease,border-color .35s ease !important;}
 
@@ -62,6 +67,11 @@
 html,body{height:100%;}
 body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--paper-100);color:var(--ink-900);-webkit-font-smoothing:antialiased;}
 .app{max-width:640px;margin:0 auto;padding:0 0 60px;}
+/* Desktop: Spalte als eingefasstes Panel statt verlorener Streifen */
+@media (min-width: 700px){
+  body{background:var(--page-bg);}
+  .app{background:var(--paper-100);min-height:100vh;border-left:1px solid var(--line-200);border-right:1px solid var(--line-200);box-shadow:var(--page-shadow);}
+}
 
 /* grid-accordion helper */
 .acc{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s cubic-bezier(.4,0,.2,1);}
@@ -82,6 +92,7 @@ button:active{transform:scale(.94);}
 @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important;}}
 
 .header{position:sticky;top:0;z-index:20;background:var(--header-bg);backdrop-filter:blur(10px);padding:18px 20px 12px;border-bottom:1px solid var(--line-200);display:flex;align-items:center;gap:10px;}
+.header .logo{width:34px;height:34px;flex:0 0 auto;display:block;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.18));}
 .header .ht{flex:1;min-width:0;}
 .header h1{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:23px;letter-spacing:-0.02em;}
 .header .sub{font-size:11.5px;color:var(--ink-500);margin-top:2px;letter-spacing:0.02em;text-transform:uppercase;}
@@ -191,6 +202,22 @@ button:active{transform:scale(.94);}
 <body>
 <div class="app">
   <div class="header">
+    <svg class="logo" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="lg-gold" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#F2C36B"/><stop offset="1" stop-color="#D18E23"/>
+        </linearGradient>
+        <radialGradient id="lg-tile" cx="0.3" cy="0.22" r="1.15">
+          <stop offset="0" stop-color="#242B36"/><stop offset="0.55" stop-color="#161A20"/><stop offset="1" stop-color="#0F1218"/>
+        </radialGradient>
+      </defs>
+      <rect x="0" y="0" width="64" height="64" rx="14" fill="url(#lg-tile)"/>
+      <circle cx="32" cy="32" r="24.6" fill="none" stroke="url(#lg-gold)" stroke-width="1.4" opacity="0.55"/>
+      <path d="M32 32 C 32 21.1, 39.8 14.8, 49.2 16.4 C 49.2 25.8, 41.4 32, 32 32 Z" fill="url(#lg-gold)"/>
+      <path d="M32 32 C 32 21.1, 39.8 14.8, 49.2 16.4 C 49.2 25.8, 41.4 32, 32 32 Z" fill="url(#lg-gold)" transform="rotate(120 32 32)"/>
+      <path d="M32 32 C 32 21.1, 39.8 14.8, 49.2 16.4 C 49.2 25.8, 41.4 32, 32 32 Z" fill="url(#lg-gold)" transform="rotate(240 32 32)"/>
+      <circle cx="32" cy="32" r="4.2" fill="#161A20" stroke="url(#lg-gold)" stroke-width="2.2"/>
+    </svg>
     <div class="ht">
       <h1>Termine &amp; Projekte</h1>
       <div class="sub">Lüftungsplanung · Terminübersicht</div>
@@ -289,7 +316,7 @@ const THEME_ICONS = {
   dark:  '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 13.2A8 8 0 1 1 10.8 4 6.4 6.4 0 0 0 20 13.2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
 };
 const THEME_NAMES = {auto:'Automatisch', light:'Hell', dark:'Dunkel'};
-let themeMode = localStorage.getItem(THEME_KEY) || 'auto';
+let themeMode = localStorage.getItem(THEME_KEY) || 'light';
 if (!(themeMode in THEME_ICONS)) themeMode = 'auto';
 const darkMq = matchMedia('(prefers-color-scheme: dark)');
 function applyTheme(animate){
@@ -305,7 +332,7 @@ function applyTheme(animate){
   btn.title = 'Design: ' + THEME_NAMES[themeMode] + ' (tippen zum Wechseln)';
 }
 function cycleTheme(){
-  themeMode = themeMode === 'auto' ? 'dark' : themeMode === 'dark' ? 'light' : 'auto';
+  themeMode = themeMode === 'light' ? 'dark' : themeMode === 'dark' ? 'auto' : 'light';
   try { localStorage.setItem(THEME_KEY, themeMode); } catch(e){}
   applyTheme(true);
 }
