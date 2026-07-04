@@ -15,19 +15,49 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
 :root{
+  color-scheme:light;
   --ink-900:#161A20;
   --ink-500:#6B7280;
   --ink-300:#9CA3AF;
   --paper-100:#F3F4F7;
   --paper-000:#FFFFFF;
   --line-200:#E4E7EC;
+  --card-hover:#FAFAFC;
+  --input-bg:#FFFFFF;
+  --header-bg:rgba(243,244,247,0.92);
   --accent-start:#E3A233;
   --accent-planung:#3E7CB8;
   --accent-beschaffung:#C6875A;
   --accent-montage:#7C6FCB;
   --accent-abschluss:#8A8256;
   --signal-urgent:#D0483F;
+  --signal-done:#3E9A5E;
+  --urgent-bg:#FBEEEC;
+  --shadow:0 1px 2px rgba(20,24,31,0.04);
 }
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ink-900:#E9ECF1;
+  --ink-500:#9AA3B0;
+  --ink-300:#6B7686;
+  --paper-100:#0E1116;
+  --paper-000:#171B22;
+  --line-200:#262C37;
+  --card-hover:#1C212A;
+  --input-bg:#10141A;
+  --header-bg:rgba(14,17,22,0.88);
+  --accent-start:#EAB04E;
+  --accent-planung:#6AA1D8;
+  --accent-beschaffung:#D89F73;
+  --accent-montage:#9C92DE;
+  --accent-abschluss:#ADA576;
+  --signal-urgent:#E2665C;
+  --signal-done:#4FB878;
+  --urgent-bg:rgba(226,102,92,0.14);
+  --shadow:0 1px 3px rgba(0,0,0,0.4);
+}
+.theme-anim,.theme-anim *{transition:background-color .35s ease,color .35s ease,border-color .35s ease !important;}
+
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;}
 body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--paper-100);color:var(--ink-900);-webkit-font-smoothing:antialiased;}
@@ -39,9 +69,24 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--pap
 .acc-inner{overflow:hidden;min-height:0;}
 .chev{transition:transform .25s ease;color:var(--ink-300);flex:0 0 auto;}
 
-.header{position:sticky;top:0;z-index:20;background:rgba(243,244,247,0.92);backdrop-filter:blur(10px);padding:18px 20px 12px;border-bottom:1px solid var(--line-200);}
+/* Animationen */
+@keyframes rise{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+.boot .home-row,.boot .project,.boot .group-label{animation:rise .5s cubic-bezier(.22,1,.36,1) backwards;animation-delay:calc(var(--i,0)*45ms);}
+@keyframes pop{0%{opacity:0;transform:scale(.96) translateY(5px);}60%{transform:scale(1.012);}100%{opacity:1;transform:none;}}
+.pop-in{animation:pop .4s cubic-bezier(.22,1,.36,1);}
+@keyframes softpulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+.overdue{animation:softpulse 2.6s ease-in-out infinite;}
+.leaving{opacity:0 !important;transform:translateX(18px) !important;margin:0 !important;padding-top:0 !important;padding-bottom:0 !important;border-color:transparent !important;box-shadow:none !important;transition:all .38s cubic-bezier(.4,0,.2,1) !important;}
+button{transition:transform .15s ease,color .15s ease,background .15s ease,border-color .15s ease;}
+button:active{transform:scale(.94);}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important;}}
+
+.header{position:sticky;top:0;z-index:20;background:var(--header-bg);backdrop-filter:blur(10px);padding:18px 20px 12px;border-bottom:1px solid var(--line-200);display:flex;align-items:center;gap:10px;}
+.header .ht{flex:1;min-width:0;}
 .header h1{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:23px;letter-spacing:-0.02em;}
 .header .sub{font-size:11.5px;color:var(--ink-500);margin-top:2px;letter-spacing:0.02em;text-transform:uppercase;}
+.theme-btn{background:none;border:none;cursor:pointer;color:var(--ink-500);padding:8px;border-radius:10px;display:flex;align-items:center;}
+.theme-btn:hover{color:var(--ink-900);background:var(--card-hover);}
 
 /* ===== Home / Termine section ===== */
 .section-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 8px;}
@@ -51,60 +96,76 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--pap
 .link-btn svg{transition:transform .25s ease;}
 .link-btn.expanded svg{transform:rotate(180deg);}
 
-.home-rows{padding:0 20px;display:flex;flex-direction:column;gap:8px;}
+.home-rows{padding:0 20px;display:flex;flex-direction:column;}
+.group-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-300);padding:8px 2px 6px;}
+.group-label.urgent{color:var(--signal-urgent);}
+.home-rows>.group-label:first-child{padding-top:0;}
 .home-row{
-  background:var(--paper-000);border-radius:12px;padding:11px 13px;
+  background:var(--paper-000);border-radius:12px;padding:11px 13px;margin-bottom:8px;
   display:flex;align-items:center;gap:10px;border-left:3px solid var(--cat-color,var(--accent-planung));
-  cursor:pointer;box-shadow:0 1px 2px rgba(20,24,31,0.04);
+  cursor:pointer;box-shadow:var(--shadow);
 }
-.home-row:hover{background:#FAFAFC;}
+.home-row:hover{background:var(--card-hover);}
 .home-row .rt{flex:1;min-width:0;}
 .home-row .rt-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .home-row .rt-proj{font-size:11.5px;color:var(--ink-500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .home-row .rt-count{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14.5px;flex:0 0 auto;text-align:right;}
 .home-row .rt-count.urgent{color:var(--signal-urgent);}
 
-/* ===== Projekte section ===== */
-.add-project-form{display:none;gap:8px;padding:10px 20px 4px;}
-.add-project-form.show{display:flex;}
-.add-project-form input{flex:1;padding:9px 11px;border:1px solid var(--line-200);border-radius:9px;font-size:13.5px;background:var(--paper-000);font-family:inherit;}
-.add-project-form button{padding:9px 14px;border-radius:9px;border:none;background:var(--ink-900);color:#fff;font-weight:600;font-size:12.5px;cursor:pointer;font-family:inherit;}
+/* Abhaken */
+.check-btn{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line-200);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:transparent;flex:0 0 auto;padding:0;}
+.check-btn:hover{border-color:var(--signal-done);color:var(--signal-done);background:rgba(78,170,110,0.1);}
+.check-btn svg path{stroke-dasharray:22;stroke-dashoffset:22;transition:stroke-dashoffset .3s ease .05s;}
+.check-btn.done{border-color:var(--signal-done);background:var(--signal-done);color:#fff;}
+.check-btn.done svg path{stroke-dashoffset:0;}
 
-.projects{padding:0 20px;display:flex;flex-direction:column;gap:10px;}
-.project{background:var(--paper-000);border-radius:14px;overflow:hidden;box-shadow:0 1px 2px rgba(20,24,31,0.04);}
+/* ===== Projekte section ===== */
+.add-project-form{display:flex;gap:8px;padding:0 20px 4px;}
+.add-project-form input{flex:1;padding:9px 11px;border:1px solid var(--line-200);border-radius:9px;font-size:13.5px;background:var(--input-bg);color:inherit;font-family:inherit;}
+.add-project-form button{padding:9px 14px;border-radius:9px;border:none;background:var(--ink-900);color:var(--paper-000);font-weight:600;font-size:12.5px;cursor:pointer;font-family:inherit;}
+
+.projects{padding:0 20px;display:flex;flex-direction:column;}
+.project{background:var(--paper-000);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:10px;}
+.project.closed{opacity:.65;}
 .project-head{display:flex;align-items:center;gap:10px;padding:14px 15px;cursor:pointer;}
 .project-head .pname{flex:1;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14.5px;overflow-wrap:anywhere;}
 .project-head .pbadge{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-500);background:var(--paper-100);padding:3px 8px;border-radius:7px;white-space:nowrap;}
-.project-head .pbadge.urgent{color:var(--signal-urgent);background:#FBEEEC;}
+.project-head .pbadge.urgent{color:var(--signal-urgent);background:var(--urgent-bg);}
 
 .project-body{padding:0 15px 16px;}
 .block{margin-top:14px;}
 .block-label{font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--ink-300);margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;}
-.info-text{width:100%;border:1px solid var(--line-200);border-radius:10px;padding:9px 10px;font-family:'Inter',sans-serif;font-size:13px;background:var(--paper-100);min-height:44px;resize:vertical;}
+.info-text{width:100%;border:1px solid var(--line-200);border-radius:10px;padding:9px 10px;font-family:'Inter',sans-serif;font-size:13px;background:var(--paper-100);color:inherit;min-height:44px;resize:vertical;}
 .info-text:focus{outline:2px solid var(--ink-900);outline-offset:1px;}
 
-.termin-row{border:1px solid var(--line-200);border-left:3px solid var(--cat-color,var(--accent-planung));border-radius:10px;padding:9px 11px;margin-bottom:7px;position:relative;}
+.termin-row{border:1px solid var(--line-200);border-left:3px solid var(--cat-color,var(--accent-planung));border-radius:10px;padding:9px 11px;margin-bottom:7px;position:relative;transition:background .15s ease;}
+.termin-row:not(.archived):hover{background:var(--card-hover);}
 .termin-row.archived{opacity:0.55;border-style:dashed;}
 .termin-row .tr-top{display:flex;justify-content:space-between;gap:8px;}
+.termin-row .tr-main{flex:1;min-width:0;}
+.termin-row:not(.archived) .tr-main{cursor:pointer;}
 .termin-row .tr-title{font-size:12.5px;font-weight:600;overflow-wrap:anywhere;}
 .termin-row .tr-date{font-size:11px;color:var(--ink-500);margin-top:2px;}
 .termin-row .tr-bem{font-size:11.5px;color:var(--ink-500);margin-top:4px;font-style:italic;overflow-wrap:anywhere;}
+.termin-row .tr-side{display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex:0 0 auto;}
+.termin-row .tr-actions{display:flex;gap:7px;align-items:center;}
 .termin-row .tr-count{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;flex:0 0 auto;}
 .termin-row .tr-count.urgent{color:var(--signal-urgent);}
-.icon-btn{background:none;border:none;cursor:pointer;color:var(--ink-300);padding:2px;flex:0 0 auto;}
+.icon-btn{background:none;border:none;cursor:pointer;color:var(--ink-300);padding:2px;flex:0 0 auto;display:flex;align-items:center;}
 .icon-btn:hover{color:var(--signal-urgent);}
 .icon-btn.restore:hover{color:var(--accent-planung);}
+.icon-btn.cal:hover{color:var(--accent-planung);}
 
 .mini-add-toggle{background:var(--paper-100);border:1px dashed var(--line-200);border-radius:9px;padding:7px 10px;font-size:12px;font-weight:600;color:var(--ink-500);cursor:pointer;text-align:center;margin-bottom:8px;}
 .mini-add-toggle:hover{color:var(--ink-900);}
 .mini-form{display:flex;flex-direction:column;gap:7px;margin-bottom:10px;background:var(--paper-100);padding:10px;border-radius:10px;}
-.mini-form input,.mini-form select{padding:8px 9px;border:1px solid var(--line-200);border-radius:8px;font-size:12.5px;background:#fff;font-family:inherit;}
+.mini-form input,.mini-form select{padding:8px 9px;border:1px solid var(--line-200);border-radius:8px;font-size:12.5px;background:var(--input-bg);color:inherit;font-family:inherit;}
 .mini-form .mf-row{display:flex;gap:7px;}
 .mini-form .mf-row>*{flex:1;min-width:0;}
 .mini-form .mf-actions{display:flex;gap:7px;}
 .mini-form .mf-actions button{flex:1;padding:8px;border-radius:8px;border:none;font-weight:600;font-size:12px;cursor:pointer;font-family:inherit;}
-.mf-save{background:var(--ink-900);color:#fff;}
-.mf-cancel{background:#fff;color:var(--ink-500);border:1px solid var(--line-200) !important;}
+.mf-save{background:var(--ink-900);color:var(--paper-000);}
+.mf-cancel{background:var(--input-bg);color:var(--ink-500);border:1px solid var(--line-200) !important;}
 
 .archive-toggle{font-size:11.5px;color:var(--ink-300);font-weight:600;cursor:pointer;text-align:center;padding:5px;}
 .archive-toggle:hover{color:var(--ink-500);}
@@ -117,8 +178,8 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--pap
 .note-bubble .nb-text{font-size:12.5px;line-height:1.4;padding-right:22px;overflow-wrap:anywhere;}
 .note-bubble .icon-btn{position:absolute;top:7px;right:7px;}
 .note-input-row{display:flex;gap:7px;}
-.note-input-row input{flex:1;padding:9px 11px;border:1px solid var(--line-200);border-radius:9px;font-size:12.5px;background:#fff;font-family:inherit;}
-.note-input-row button{padding:9px 13px;border-radius:9px;border:none;background:var(--ink-900);color:#fff;font-weight:600;font-size:12px;cursor:pointer;font-family:inherit;}
+.note-input-row input{flex:1;padding:9px 11px;border:1px solid var(--line-200);border-radius:9px;font-size:12.5px;background:var(--input-bg);color:inherit;font-family:inherit;}
+.note-input-row button{padding:9px 13px;border-radius:9px;border:none;background:var(--ink-900);color:var(--paper-000);font-weight:600;font-size:12px;cursor:pointer;font-family:inherit;}
 
 .empty{color:var(--ink-300);font-size:12.5px;padding:6px 2px;}
 .hint{margin:20px 20px 0;font-size:11.5px;color:var(--ink-300);line-height:1.5;text-align:center;}
@@ -130,8 +191,11 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--pap
 <body>
 <div class="app">
   <div class="header">
-    <h1>Termine &amp; Projekte</h1>
-    <div class="sub">Lüftungsplanung · Terminübersicht</div>
+    <div class="ht">
+      <h1>Termine &amp; Projekte</h1>
+      <div class="sub">Lüftungsplanung · Terminübersicht</div>
+    </div>
+    <button class="theme-btn" id="theme-btn" onclick="cycleTheme()" title="Design wechseln"></button>
   </div>
 
   <div class="section-head">
@@ -142,16 +206,18 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--pap
     </button>
   </div>
   <div class="home-rows" id="home-top"></div>
-  <div class="acc" id="home-acc"><div class="acc-inner"><div class="home-rows" id="home-more" style="padding-top:8px;"></div></div></div>
+  <div class="acc" id="home-acc"><div class="acc-inner"><div class="home-rows" id="home-more"></div></div></div>
 
   <div class="section-head" style="padding-top:22px;">
     <h2>Projekte</h2>
     <button class="link-btn" onclick="toggleAddProjectForm()">+ Projekt</button>
   </div>
-  <div class="add-project-form" id="add-project-form">
-    <input type="text" id="new-project-name" placeholder="Projektname" onkeydown="if(event.key==='Enter')addProject()">
-    <button onclick="addProject()">Anlegen</button>
-  </div>
+  <div class="acc" id="add-project-acc"><div class="acc-inner">
+    <div class="add-project-form">
+      <input type="text" id="new-project-name" placeholder="Projektname" onkeydown="if(event.key==='Enter')addProject()">
+      <button onclick="addProject()">Anlegen</button>
+    </div>
+  </div></div>
 
   <div class="projects" id="projects"></div>
 
@@ -160,7 +226,7 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--pap
     <span style="color:var(--ink-300);font-size:11.5px;">·</span>
     <label class="link-btn" style="cursor:pointer;">Daten importieren<input type="file" accept=".json,application/json" style="display:none" onchange="importData(this)"></label>
   </div>
-  <div class="hint">Alle Daten bleiben lokal in diesem Browser gespeichert.<br>Gelöschtes wird nur archiviert und ist jederzeit wiederherstellbar.</div>
+  <div class="hint">Alle Daten bleiben lokal in diesem Browser gespeichert. Import führt ein Backup mit dem aktuellen Stand zusammen — gelöscht wird nie.<br>Gelöschtes wird nur archiviert und ist jederzeit wiederherstellbar.</div>
 </div>
 
 <script>
@@ -168,6 +234,7 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--pap
 
 /* ===== Konstanten & Zustand ===== */
 const LS_KEY = 'termine_v1';
+const THEME_KEY = 'termine_theme';
 const CATS = {
   start:{label:'Start / Klärung',color:'var(--accent-start)'},
   planung:{label:'Planung',color:'var(--accent-planung)'},
@@ -176,6 +243,7 @@ const CATS = {
   abschluss:{label:'Abschluss',color:'var(--accent-abschluss)'},
 };
 const catOf = k => CATS[k] || CATS.planung;
+const GROUPS = {overdue:'Überfällig', today:'Heute', tomorrow:'Morgen', later:'Später'};
 
 // Ansichts-Zustand (nicht persistiert)
 const ui = {
@@ -184,6 +252,7 @@ const ui = {
   archOpen:new Set(),    // Projekte mit sichtbaren archivierten Terminen
   delOpen:new Set(),     // Projekte mit sichtbaren gelöschten Notizen
   showAddProject:false,
+  closedOpen:false,      // abgeschlossene Projekte sichtbar
 };
 
 let idSeq = 0;
@@ -213,15 +282,54 @@ window.addEventListener('pagehide', ()=>{ if (saveTimer){ clearTimeout(saveTimer
 
 const proj = id => data.projects.find(p => p.id === id);
 
+/* ===== Design (hell/dunkel/auto) ===== */
+const THEME_ICONS = {
+  auto:  '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg>',
+  light: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.4" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5 5l1.6 1.6M17.4 17.4L19 19M19 5l-1.6 1.6M6.6 17.4L5 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  dark:  '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 13.2A8 8 0 1 1 10.8 4 6.4 6.4 0 0 0 20 13.2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+};
+const THEME_NAMES = {auto:'Automatisch', light:'Hell', dark:'Dunkel'};
+let themeMode = localStorage.getItem(THEME_KEY) || 'auto';
+if (!(themeMode in THEME_ICONS)) themeMode = 'auto';
+const darkMq = matchMedia('(prefers-color-scheme: dark)');
+function applyTheme(animate){
+  const dark = themeMode === 'dark' || (themeMode === 'auto' && darkMq.matches);
+  if (animate){
+    document.documentElement.classList.add('theme-anim');
+    setTimeout(()=>document.documentElement.classList.remove('theme-anim'), 400);
+  }
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  document.querySelector('meta[name="theme-color"]').setAttribute('content', dark ? '#0E1116' : '#F3F4F7');
+  const btn = document.getElementById('theme-btn');
+  btn.innerHTML = THEME_ICONS[themeMode];
+  btn.title = 'Design: ' + THEME_NAMES[themeMode] + ' (tippen zum Wechseln)';
+}
+function cycleTheme(){
+  themeMode = themeMode === 'auto' ? 'dark' : themeMode === 'dark' ? 'light' : 'auto';
+  try { localStorage.setItem(THEME_KEY, themeMode); } catch(e){}
+  applyTheme(true);
+}
+darkMq.addEventListener('change', ()=>{ if (themeMode === 'auto') applyTheme(true); });
+
 /* ===== Zeit & Countdown ===== */
 function readout(dateStr){
   const ms = new Date(dateStr) - Date.now();
-  if (ms < 0) return {text:'Überfällig', urgent:true};
+  if (ms < 0) return {text:'Überfällig', urgent:true, overdue:true};
   const days  = Math.floor(ms / 86400000);
   const hours = Math.floor((ms % 86400000) / 3600000);
   const mins  = Math.floor((ms % 3600000) / 60000);
-  if (days >= 1) return {text:`${days}T ${String(hours).padStart(2,'0')}Std`, urgent:false};
-  return {text:`${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}`, urgent:true};
+  if (days >= 1) return {text:`${days}T ${String(hours).padStart(2,'0')}Std`, urgent:false, overdue:false};
+  return {text:`${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}`, urgent:true, overdue:false};
+}
+function groupOf(dateStr){
+  const now = new Date(), d = new Date(dateStr);
+  if (d < now) return 'overdue';
+  const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const diffDays = Math.round((startDay - startToday) / 86400000);
+  if (diffDays <= 0) return 'today';
+  if (diffDays === 1) return 'tomorrow';
+  return 'later';
 }
 function fmtDate(dateStr){
   const d = new Date(dateStr), tage = ['So','Mo','Di','Mi','Do','Fr','Sa'];
@@ -232,21 +340,37 @@ function fmtNoteDate(dateStr){
   return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')} · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
 }
 
-// Aktualisiert alle sichtbaren Countdowns ohne Neuaufbau des DOM
+// Countdown-Aktualisierung: Home neu aufbauen (Gruppen bleiben korrekt),
+// restliche Anzeigen ohne DOM-Neuaufbau nachführen
 function tick(){
-  document.querySelectorAll('[data-count]').forEach(el => {
+  renderHome();
+  document.querySelectorAll('#projects [data-count]').forEach(el => {
     const r = readout(el.dataset.count);
     el.textContent = r.text;
     el.classList.toggle('urgent', r.urgent);
+    el.classList.toggle('overdue', r.overdue);
   });
 }
 setInterval(tick, 30000);
 document.addEventListener('visibilitychange', ()=>{ if (!document.hidden) tick(); });
 
+/* ===== Animations-Helfer ===== */
+function collapseOut(el, cb){
+  el.style.height = el.offsetHeight + 'px';
+  el.style.overflow = 'hidden';
+  void el.offsetHeight; // Reflow, damit die Start-Höhe greift
+  el.classList.add('leaving');
+  el.style.height = '0px';
+  setTimeout(cb, 400);
+}
+function popIn(selector){
+  requestAnimationFrame(()=>document.querySelectorAll(selector).forEach(el=>el.classList.add('pop-in')));
+}
+
 /* ===== Rendern ===== */
 function allActiveTermine(){
   const out = [];
-  data.projects.forEach(p => p.termine.forEach(t => { if (!t.archived) out.push({t, p}); }));
+  data.projects.forEach(p => { if (!p.closed) p.termine.forEach(t => { if (!t.archived) out.push({t, p}); }); });
   return out.sort((a,b) => new Date(a.t.datum) - new Date(b.t.datum));
 }
 
@@ -254,21 +378,41 @@ function render(){ renderHome(); renderProjects(); }
 
 function renderHome(){
   const all = allActiveTermine();
-  const rowHtml = ({t, p}) => {
+
+  // Flache Liste aus Gruppen-Titeln und Zeilen aufbauen
+  const items = [];
+  let lastG = null;
+  for (const e of all){
+    const g = groupOf(e.t.datum);
+    if (g !== lastG){ items.push({head:g}); lastG = g; }
+    items.push({row:e});
+  }
+  // Aufteilen: die ersten 4 Zeilen (inkl. zugehöriger Titel) oben, Rest ins Accordion
+  let i = 0, rowCount = 0;
+  for (; i < items.length && rowCount < 4; i++) if (items[i].row) rowCount++;
+  const topItems = items.slice(0, i), moreItems = items.slice(i);
+
+  let idx = 0;
+  const itemHtml = it => {
+    if (it.head) return `<div class="group-label ${it.head==='overdue'?'urgent':''}" style="--i:${idx++}">${GROUPS[it.head]}</div>`;
+    const {t, p} = it.row;
     const r = readout(t.datum);
-    return `<div class="home-row" style="--cat-color:${catOf(t.kat).color}" onclick="jumpToProject('${p.id}')">
+    return `<div class="home-row" data-tid="${t.id}" style="--cat-color:${catOf(t.kat).color};--i:${idx++}" onclick="jumpToProject('${p.id}')">
       <div class="rt">
         <div class="rt-title">${esc(t.titel)}</div>
         <div class="rt-proj">${esc(p.name)}</div>
       </div>
-      <div class="rt-count ${r.urgent?'urgent':''}" data-count="${esc(t.datum)}">${r.text}</div>
+      <div class="rt-count ${r.urgent?'urgent':''} ${r.overdue?'overdue':''}" data-count="${esc(t.datum)}">${r.text}</div>
+      <button class="check-btn" onclick="event.stopPropagation();completeTermin(this,'${p.id}','${t.id}')" title="Erledigt – archivieren">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     </div>`;
   };
   document.getElementById('home-top').innerHTML =
-    all.slice(0,4).map(rowHtml).join('') || `<div class="empty">Keine anstehenden Termine.</div>`;
-  document.getElementById('home-more').innerHTML = all.slice(4).map(rowHtml).join('');
+    topItems.map(itemHtml).join('') || `<div class="empty">Keine anstehenden Termine.</div>`;
+  document.getElementById('home-more').innerHTML = moreItems.map(itemHtml).join('');
 
-  const more = all.length > 4;
+  const more = moreItems.length > 0;
   if (!more) ui.homeExpanded = false;
   const btn = document.getElementById('home-toggle');
   btn.style.display = more ? '' : 'none';
@@ -287,14 +431,19 @@ function jumpToProject(pid){
 
 function renderProjects(){
   const wrap = document.getElementById('projects');
-  if (!data.projects.length){
-    wrap.innerHTML = `<div class="empty">Noch keine Projekte. Oben rechts mit «+ Projekt» starten.</div>`;
-    return;
+  const active = data.projects.filter(p => !p.closed);
+  const closed = data.projects.filter(p => p.closed);
+  let idx = 0;
+  let html = active.map(p => projectHtml(p, idx++)).join('')
+    || `<div class="empty">Noch keine Projekte. Oben rechts mit «+ Projekt» starten.</div>`;
+  if (closed.length){
+    html += `<div class="archive-toggle" style="margin-top:4px;" onclick="toggleClosedProjects()">${ui.closedOpen ? 'Abgeschlossene ausblenden' : 'Abgeschlossene Projekte anzeigen ('+closed.length+')'}</div>
+    <div class="acc ${ui.closedOpen?'open':''}"><div class="acc-inner" style="padding-top:10px;">${closed.map(p => projectHtml(p, idx++)).join('')}</div></div>`;
   }
-  wrap.innerHTML = data.projects.map(projectHtml).join('');
+  wrap.innerHTML = html;
 }
 
-function projectHtml(p){
+function projectHtml(p, idx){
   const isOpen = ui.open.has(p.id);
   const active = p.termine.filter(t => !t.archived).sort((a,b) => new Date(a.datum) - new Date(b.datum));
   const archived = p.termine.filter(t => t.archived);
@@ -304,10 +453,10 @@ function projectHtml(p){
   const nb = next ? readout(next.datum) : null;
   const archOpen = ui.archOpen.has(p.id), delOpen = ui.delOpen.has(p.id);
 
-  return `<div class="project" id="proj-${p.id}">
+  return `<div class="project ${p.closed?'closed':''}" id="proj-${p.id}" style="--i:${idx}">
     <div class="project-head" onclick="toggleProject('${p.id}')">
       <div class="pname">${esc(p.name)}</div>
-      ${next ? `<div class="pbadge ${nb.urgent?'urgent':''}" data-count="${esc(next.datum)}">${nb.text}</div>` : ''}
+      ${next && !p.closed ? `<div class="pbadge ${nb.urgent?'urgent':''} ${nb.overdue?'overdue':''}" data-count="${esc(next.datum)}">${nb.text}</div>` : ''}
       <svg class="chev" style="${isOpen?'transform:rotate(180deg)':''}" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
     </div>
     <div class="acc ${isOpen?'open':''}"><div class="acc-inner"><div class="project-body">
@@ -329,7 +478,7 @@ function projectHtml(p){
       <div class="block">
         <div class="block-label">Notizen</div>
         <div class="notes-feed">
-          ${notes.map(n => `<div class="note-bubble">
+          ${notes.map(n => `<div class="note-bubble" data-nid="${n.id}">
             <button class="icon-btn" onclick="deleteNote('${p.id}','${n.id}')" title="Löschen">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
             </button>
@@ -349,24 +498,31 @@ function projectHtml(p){
         </div>
       </div>
 
+      ${p.closed
+        ? `<div class="archive-toggle" style="margin-top:14px;" onclick="restoreProject('${p.id}')">Projekt wiederherstellen</div>`
+        : `<div class="archive-toggle" style="margin-top:14px;" onclick="closeProject('${p.id}')">Projekt abschliessen</div>`}
+
     </div></div></div>
   </div>`;
 }
 
 function terminRowHtml(pid, t, isArchived){
   const r = readout(t.datum);
-  return `<div class="termin-row ${isArchived?'archived':''}" style="--cat-color:${catOf(t.kat).color}">
+  return `<div class="termin-row ${isArchived?'archived':''}" data-tid="${t.id}" style="--cat-color:${catOf(t.kat).color}">
     <div class="tr-top">
-      <div>
+      <div class="tr-main" ${isArchived ? '' : `onclick="editTermin('${pid}','${t.id}')" title="Bearbeiten"`}>
         <div class="tr-title">${esc(t.titel)}</div>
         <div class="tr-date">${fmtDate(t.datum)} · ${catOf(t.kat).label}</div>
         ${t.bem ? `<div class="tr-bem">${esc(t.bem)}</div>` : ''}
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-        <div class="tr-count ${r.urgent?'urgent':''}" data-count="${esc(t.datum)}">${r.text}</div>
+      <div class="tr-side">
+        <div class="tr-count ${r.urgent?'urgent':''} ${r.overdue?'overdue':''}" data-count="${esc(t.datum)}">${r.text}</div>
         ${isArchived
           ? `<button class="icon-btn restore" onclick="restoreTermin('${pid}','${t.id}')" title="Wiederherstellen"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1 1 3 6.7M3 12V6m0 6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`
-          : `<button class="icon-btn" onclick="deleteTermin('${pid}','${t.id}')" title="Löschen"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>`}
+          : `<div class="tr-actions">
+              <button class="icon-btn cal" onclick="exportIcs('${pid}','${t.id}')" title="In Kalender übernehmen (.ics)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5.5" width="17" height="15.5" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4M16 3v4M3.5 10.5h17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 13v5M9.7 15.7L12 18l2.3-2.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              <button class="check-btn" onclick="completeTermin(this,'${pid}','${t.id}')" title="Erledigt – archivieren"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            </div>`}
       </div>
     </div>
   </div>`;
@@ -377,60 +533,151 @@ function toggleProject(id){
   if (ui.open.has(id)) ui.open.delete(id); else ui.open.add(id);
   renderProjects();
 }
-function updateInfo(pid, val){ proj(pid).info = val; saveSoon(); }
+function updateInfo(pid, val){ const p = proj(pid); p.info = val; p.mtime = Date.now(); saveSoon(); }
 
 function toggleAddProjectForm(){
   ui.showAddProject = !ui.showAddProject;
-  document.getElementById('add-project-form').classList.toggle('show', ui.showAddProject);
-  if (ui.showAddProject) document.getElementById('new-project-name').focus();
+  document.getElementById('add-project-acc').classList.toggle('open', ui.showAddProject);
+  if (ui.showAddProject) setTimeout(()=>document.getElementById('new-project-name').focus(), 200);
 }
 function addProject(){
   const input = document.getElementById('new-project-name');
   const name = input.value.trim();
   if (!name) return;
   const id = newId('p');
-  data.projects.unshift({id, name, info:'', termine:[], notes:[]});
+  data.projects.unshift({id, name, info:'', closed:false, mtime:Date.now(), termine:[], notes:[]});
   ui.open.add(id);
   input.value = '';
   toggleAddProjectForm();
   save(); render();
+  popIn('#proj-'+id);
 }
+function closeProject(pid){
+  const el = document.getElementById('proj-'+pid);
+  const finish = ()=>{
+    const p = proj(pid);
+    p.closed = true; p.mtime = Date.now();
+    ui.open.delete(pid);
+    save(); render();
+  };
+  if (el) collapseOut(el, finish); else finish();
+}
+function restoreProject(pid){
+  const p = proj(pid);
+  p.closed = false; p.mtime = Date.now();
+  save(); render();
+  popIn('#proj-'+pid);
+}
+function toggleClosedProjects(){ ui.closedOpen = !ui.closedOpen; renderProjects(); }
 
 /* ===== Aktionen: Termine ===== */
-function openMiniForm(pid){
+function openMiniForm(pid, tid){
+  const t = tid ? proj(pid).termine.find(x => x.id === tid) : null;
   const d = new Date();
-  const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  document.getElementById('mform-'+pid).innerHTML = `<div class="mini-form">
-    <input type="text" id="mf-titel-${pid}" placeholder="Bezeichnung" onkeydown="if(event.key==='Enter')saveTermin('${pid}')">
+  const dateVal = t ? t.datum.slice(0,10) : `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const timeVal = t ? t.datum.slice(11,16) : '08:00';
+  const holder = document.getElementById('mform-'+pid);
+  holder.innerHTML = `<div class="acc" id="mfacc-${pid}"><div class="acc-inner"><div class="mini-form">
+    <div class="block-label" style="margin-bottom:0;">${t ? 'Termin bearbeiten' : 'Neuer Termin'}</div>
+    <input type="text" id="mf-titel-${pid}" placeholder="Bezeichnung" value="${t ? esc(t.titel) : ''}" onkeydown="if(event.key==='Enter')saveTermin('${pid}','${tid||''}')">
     <div class="mf-row">
-      <select id="mf-kat-${pid}">${Object.entries(CATS).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('')}</select>
-      <input type="date" id="mf-datum-${pid}" value="${iso}">
-      <input type="time" id="mf-zeit-${pid}" value="08:00">
+      <select id="mf-kat-${pid}">${Object.entries(CATS).map(([k,v])=>`<option value="${k}" ${t && t.kat===k ? 'selected' : ''}>${v.label}</option>`).join('')}</select>
+      <input type="date" id="mf-datum-${pid}" value="${dateVal}">
+      <input type="time" id="mf-zeit-${pid}" value="${timeVal}">
     </div>
-    <input type="text" id="mf-bem-${pid}" placeholder="Bemerkung (optional)">
+    <input type="text" id="mf-bem-${pid}" placeholder="Bemerkung (optional)" value="${t ? esc(t.bem) : ''}">
     <div class="mf-actions">
       <button class="mf-cancel" onclick="closeMiniForm('${pid}')">Abbrechen</button>
-      <button class="mf-save" onclick="saveTermin('${pid}')">Speichern</button>
+      <button class="mf-save" onclick="saveTermin('${pid}','${tid||''}')">Speichern</button>
     </div>
-  </div>`;
-  document.getElementById(`mf-titel-${pid}`).focus();
+  </div></div></div>`;
+  requestAnimationFrame(()=>document.getElementById('mfacc-'+pid).classList.add('open'));
+  setTimeout(()=>document.getElementById(`mf-titel-${pid}`).focus(), 200);
 }
-function closeMiniForm(pid){ document.getElementById('mform-'+pid).innerHTML = ''; }
-function saveTermin(pid){
+function editTermin(pid, tid){
+  openMiniForm(pid, tid);
+  document.getElementById('mform-'+pid).scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+function closeMiniForm(pid){
+  const acc = document.getElementById('mfacc-'+pid);
+  if (!acc){ document.getElementById('mform-'+pid).innerHTML = ''; return; }
+  acc.classList.remove('open');
+  setTimeout(()=>{ document.getElementById('mform-'+pid).innerHTML = ''; }, 360);
+}
+function saveTermin(pid, tid){
   const titel = document.getElementById(`mf-titel-${pid}`).value.trim();
   const kat   = document.getElementById(`mf-kat-${pid}`).value;
   const datum = document.getElementById(`mf-datum-${pid}`).value;
   const zeit  = document.getElementById(`mf-zeit-${pid}`).value || '08:00';
   const bem   = document.getElementById(`mf-bem-${pid}`).value.trim();
   if (!titel || !datum){ alert('Bitte Bezeichnung und Datum ausfüllen.'); return; }
-  proj(pid).termine.push({id:newId('t'), titel, kat, datum:`${datum}T${zeit}:00`, bem, archived:false});
+  let id = tid;
+  if (tid){
+    const t = proj(pid).termine.find(x => x.id === tid);
+    Object.assign(t, {titel, kat, datum:`${datum}T${zeit}:00`, bem, mtime:Date.now()});
+  } else {
+    id = newId('t');
+    proj(pid).termine.push({id, titel, kat, datum:`${datum}T${zeit}:00`, bem, archived:false, mtime:Date.now()});
+  }
   save(); render();
+  popIn(`[data-tid="${id}"]`);
 }
-function deleteTermin(pid, tid){ proj(pid).termine.find(t=>t.id===tid).archived = true; save(); render(); }
-function restoreTermin(pid, tid){ proj(pid).termine.find(t=>t.id===tid).archived = false; save(); render(); }
+function completeTermin(btn, pid, tid){
+  if (btn.dataset.busy) return;
+  btn.dataset.busy = '1';
+  btn.classList.add('done');
+  const row = btn.closest('.home-row, .termin-row');
+  const finish = ()=>{
+    const t = proj(pid).termine.find(x => x.id === tid);
+    t.archived = true; t.mtime = Date.now();
+    save(); render();
+  };
+  if (row) setTimeout(()=>collapseOut(row, finish), 260); else finish();
+}
+function restoreTermin(pid, tid){
+  const t = proj(pid).termine.find(x => x.id === tid);
+  t.archived = false; t.mtime = Date.now();
+  save(); render();
+  popIn(`[data-tid="${tid}"]`);
+}
 function toggleArchived(pid){
   if (ui.archOpen.has(pid)) ui.archOpen.delete(pid); else ui.archOpen.add(pid);
   renderProjects();
+}
+
+/* ===== Kalender-Export (.ics) ===== */
+function icsEscape(s){
+  return String(s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n');
+}
+function buildIcs(t, projName){
+  const p2 = n => String(n).padStart(2,'0');
+  const loc = d => `${d.getFullYear()}${p2(d.getMonth()+1)}${p2(d.getDate())}T${p2(d.getHours())}${p2(d.getMinutes())}00`;
+  const s = new Date();
+  const stamp = `${s.getUTCFullYear()}${p2(s.getUTCMonth()+1)}${p2(s.getUTCDate())}T${p2(s.getUTCHours())}${p2(s.getUTCMinutes())}${p2(s.getUTCSeconds())}Z`;
+  const desc = [projName, t.bem].filter(Boolean).join(' — ');
+  return [
+    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Termine und Projekte//DE','CALSCALE:GREGORIAN','METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `UID:${t.id}@termine-projekte`,
+    `DTSTAMP:${stamp}`,
+    `DTSTART:${loc(new Date(t.datum))}`,
+    'DURATION:PT1H',
+    `SUMMARY:${icsEscape(t.titel)} (${icsEscape(projName)})`,
+    desc ? `DESCRIPTION:${icsEscape(desc)}` : '',
+    'BEGIN:VALARM','ACTION:DISPLAY',`DESCRIPTION:${icsEscape(t.titel)}`,'TRIGGER:-P1D','END:VALARM',
+    'BEGIN:VALARM','ACTION:DISPLAY',`DESCRIPTION:${icsEscape(t.titel)}`,'TRIGGER:-PT1H','END:VALARM',
+    'END:VEVENT','END:VCALENDAR',
+  ].filter(Boolean).join('\r\n');
+}
+function exportIcs(pid, tid){
+  const p = proj(pid), t = p.termine.find(x => x.id === tid);
+  const blob = new Blob([buildIcs(t, p.name)], {type:'text/calendar;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const slug = t.titel.toLowerCase().replace(/[^a-z0-9äöüéèà]+/gi,'-').replace(/^-+|-+$/g,'').slice(0,40) || 'termin';
+  a.download = `termin-${slug}.ics`;
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
 /* ===== Aktionen: Notizen ===== */
@@ -438,17 +685,28 @@ function addNote(pid){
   const input = document.getElementById('note-input-'+pid);
   const text = input.value.trim();
   if (!text) return;
-  proj(pid).notes.push({id:newId('n'), text, datum:new Date().toISOString(), deleted:false});
+  const id = newId('n');
+  proj(pid).notes.push({id, text, datum:new Date().toISOString(), deleted:false, mtime:Date.now()});
+  save(); renderProjects();
+  popIn(`[data-nid="${id}"]`);
+}
+function deleteNote(pid, nid){
+  const n = proj(pid).notes.find(x => x.id === nid);
+  n.deleted = true; n.mtime = Date.now();
   save(); renderProjects();
 }
-function deleteNote(pid, nid){ proj(pid).notes.find(n=>n.id===nid).deleted = true; save(); renderProjects(); }
-function restoreNote(pid, nid){ proj(pid).notes.find(n=>n.id===nid).deleted = false; save(); renderProjects(); }
+function restoreNote(pid, nid){
+  const n = proj(pid).notes.find(x => x.id === nid);
+  n.deleted = false; n.mtime = Date.now();
+  save(); renderProjects();
+  popIn(`[data-nid="${nid}"]`);
+}
 function toggleDeletedNotes(pid){
   if (ui.delOpen.has(pid)) ui.delOpen.delete(pid); else ui.delOpen.add(pid);
   renderProjects();
 }
 
-/* ===== Backup: Export / Import ===== */
+/* ===== Backup: Export / Import (Merge) ===== */
 function exportData(){
   if (saveTimer){ clearTimeout(saveTimer); saveTimer = null; save(); }
   const d = new Date();
@@ -460,6 +718,36 @@ function exportData(){
   a.click();
   URL.revokeObjectURL(a.href);
 }
+// Union per id; bei Konflikt gewinnt der Eintrag mit neuerem mtime (ohne mtime gewinnt lokal)
+function mergeItems(localArr, impArr){
+  const out = localArr.map(x => ({...x}));
+  const idx = {};
+  out.forEach((x, i) => { idx[x.id] = i; });
+  for (const item of impArr){
+    if (idx[item.id] !== undefined){
+      if ((item.mtime || 0) > (out[idx[item.id]].mtime || 0)) out[idx[item.id]] = {...item};
+    } else out.push({...item});
+  }
+  return out;
+}
+function mergeData(local, imp){
+  const localMap = {}, impMap = {};
+  local.projects.forEach(p => { localMap[p.id] = p; });
+  imp.projects.forEach(p => { impMap[p.id] = p; });
+  const ids = [...local.projects.map(p => p.id), ...imp.projects.filter(p => !localMap[p.id]).map(p => p.id)];
+  return {v:1, projects: ids.map(id => {
+    const L = localMap[id], I = impMap[id];
+    if (!L || !I) return L || I;
+    const newer = (I.mtime || 0) > (L.mtime || 0) ? I : L;
+    return {
+      id,
+      name: newer.name, info: newer.info, closed: !!newer.closed,
+      mtime: Math.max(L.mtime || 0, I.mtime || 0),
+      termine: mergeItems(L.termine || [], I.termine || []),
+      notes: mergeItems(L.notes || [], I.notes || []),
+    };
+  })};
+}
 function importData(input){
   const file = input.files && input.files[0];
   if (!file) return;
@@ -468,9 +756,9 @@ function importData(input){
     try {
       const d = JSON.parse(reader.result);
       if (!d || !Array.isArray(d.projects)) throw new Error('unerwartetes Format');
-      if (!confirm('Import ersetzt die aktuellen Daten. Der bisherige Stand wird vorher im Browser gesichert. Fortfahren?')){ input.value=''; return; }
+      if (!confirm('Backup wird mit den aktuellen Daten zusammengeführt — bei Konflikten gewinnt der neuere Stand, gelöscht wird nichts. Fortfahren?')){ input.value=''; return; }
       try { localStorage.setItem(LS_KEY + '_vor_import_' + Date.now(), JSON.stringify(data)); } catch(_){}
-      data = d;
+      data = mergeData(data, d);
       save(); render();
     } catch(e) {
       alert('Datei konnte nicht gelesen werden – kein gültiges Backup.');
@@ -481,7 +769,10 @@ function importData(input){
 }
 
 /* ===== Start ===== */
+applyTheme(false);
+document.body.classList.add('boot');
 render();
+setTimeout(()=>document.body.classList.remove('boot'), 1000);
 
 if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
   navigator.serviceWorker.register('./sw.js').catch(()=>{});

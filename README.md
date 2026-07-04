@@ -4,12 +4,16 @@ Persönliche Terminübersicht für Lüftungsprojekte — eine schlanke, offline-
 
 ## Was sie kann
 
-- **Nächste Termine**: die 4 nächsten Termine über alle Projekte, aufklappbar auf alle.
-- **Projekte** als Accordion mit freiem Infofeld (speichert beim Tippen), Terminen und Notizen im Chat-Stil.
+- **Nächste Termine**: die 4 nächsten Termine über alle Projekte, gruppiert nach Überfällig / Heute / Morgen / Später, aufklappbar auf alle.
+- **Abhaken direkt in der Liste**: Häkchen-Button archiviert den Termin mit Animation — ohne Umweg übers Projekt.
+- **Projekte** als Accordion mit freiem Infofeld (speichert beim Tippen), Terminen und Notizen im Chat-Stil. Fertige Projekte lassen sich abschliessen (und wiederherstellen).
+- **Termine bearbeiten**: Tippen auf einen Termin öffnet das vorbefüllte Formular.
+- **In Kalender übernehmen**: pro Termin eine `.ics`-Datei mit Erinnerungen (1 Tag und 1 Std vorher) für Outlook/Handy-Kalender — so klingelt es auch, wenn die App zu ist.
 - **5 Terminarten** mit fester Farbcodierung: Start / Klärung, Planung, Beschaffung, Montage, Abschluss.
-- **Live-Countdown** pro Termin: `3T 04Std` ab 1 Tag, `HH:MM` (rot) unter 24 Std, `Überfällig` (rot) nach Ablauf — aktualisiert sich automatisch.
+- **Live-Countdown** pro Termin: `3T 04Std` ab 1 Tag, `HH:MM` (rot) unter 24 Std, `Überfällig` (rot, pulsierend) nach Ablauf — aktualisiert sich automatisch.
+- **Dark Mode**: automatisch nach Systemeinstellung, umschaltbar im Header (Automatisch / Dunkel / Hell).
 - **Kein endgültiges Löschen**: Termine werden archiviert, Notizen als gelöscht markiert — beides jederzeit wiederherstellbar.
-- **Backup**: Daten als JSON exportieren/importieren (Links am Seitenende).
+- **Backup**: Daten als JSON exportieren/importieren (Links am Seitenende). Der Import **führt zusammen** statt zu ersetzen — bei Konflikten gewinnt der neuere Stand, gelöscht wird nichts; so lässt sich auch zwischen Handy und PC abgleichen.
 
 ## Daten
 
