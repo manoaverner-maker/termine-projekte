@@ -1,5 +1,5 @@
 /* Service Worker — Offline-Cache für Termine & Projekte */
-const CACHE = 'termine-v4';
+const CACHE = 'termine-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -25,6 +25,12 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
+
+  // Supabase-Sync-API: nie cachen, immer frisch vom Netz (Sync-Daten duerfen nicht veralten)
+  if (req.url.indexOf('.supabase.co') !== -1) {
+    e.respondWith(fetch(req));
+    return;
+  }
 
   // App-Navigation: Netz zuerst (frische Version), sonst Cache
   if (req.mode === 'navigate') {

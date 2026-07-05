@@ -98,6 +98,16 @@ button:active{transform:scale(.94);}
 .header .sub{font-size:11.5px;color:var(--ink-500);margin-top:2px;letter-spacing:0.02em;text-transform:uppercase;}
 .theme-btn{background:none;border:none;cursor:pointer;color:var(--ink-500);padding:8px;border-radius:10px;display:flex;align-items:center;}
 .theme-btn:hover{color:var(--ink-900);background:var(--card-hover);}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--ink-300);flex:0 0 auto;transition:background .3s ease;}
+.sync-dot.on{background:var(--signal-done);}
+.sync-dot.syncing{background:var(--accent-start);}
+.sync-dot.err{background:var(--signal-urgent);}
+.sync-panel{padding:10px 20px 14px;display:flex;flex-direction:column;gap:10px;}
+.sync-panel .sync-status{font-size:12px;color:var(--ink-500);}
+.sync-row{display:flex;gap:8px;}
+.sync-row input{flex:1;min-width:0;padding:9px 11px;border:1px solid var(--line-200);border-radius:9px;font-size:12.5px;background:var(--input-bg);color:inherit;font-family:'IBM Plex Mono',monospace;}
+.sync-row button{padding:9px 14px;border-radius:9px;border:none;background:var(--ink-900);color:var(--paper-000);font-weight:600;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.sync-row button.secondary{background:none;border:1px solid var(--line-200);color:var(--ink-500);}
 
 /* ===== Home / Termine section ===== */
 .section-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 8px;}
@@ -248,6 +258,7 @@ button:active{transform:scale(.94);}
       <h1>Termine &amp; Projekte</h1>
       <div class="sub">Lüftungsplanung · Terminübersicht</div>
     </div>
+    <span class="sync-dot" id="sync-dot" title="Cloud-Sync: aus"></span>
     <button class="theme-btn" id="theme-btn" onclick="cycleTheme()" title="Design wechseln"></button>
   </div>
 
@@ -278,10 +289,16 @@ button:active{transform:scale(.94);}
     <button class="link-btn" onclick="exportData()">Daten exportieren</button>
     <span style="color:var(--ink-300);font-size:11.5px;">·</span>
     <label class="link-btn" style="cursor:pointer;">Daten importieren<input type="file" accept=".json,application/json" style="display:none" onchange="importData(this)"></label>
+    <span style="color:var(--ink-300);font-size:11.5px;">·</span>
+    <button class="link-btn" onclick="toggleSyncPanel()">Cloud-Sync</button>
   </div>
+  <div class="acc" id="sync-acc"><div class="acc-inner">
+    <div class="sync-panel" id="sync-panel"></div>
+  </div></div>
   <div class="hint">Alle Daten bleiben lokal in diesem Browser gespeichert. Import führt ein Backup mit dem aktuellen Stand zusammen — gelöscht wird nie.<br>Gelöschtes wird nur archiviert und ist jederzeit wiederherstellbar.</div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 'use strict';
 
@@ -330,8 +347,118 @@ function load(){
 let data = load();
 let saveTimer = null;
 function save(){ try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e){} }
-function saveSoon(){ clearTimeout(saveTimer); saveTimer = setTimeout(()=>{ saveTimer = null; save(); }, 400); }
+function saveSoon(){ clearTimeout(saveTimer); saveTimer = setTimeout(()=>{ saveTimer = null; save(); }, 400); pushRemoteSoon(); }
 window.addEventListener('pagehide', ()=>{ if (saveTimer){ clearTimeout(saveTimer); saveTimer = null; save(); } });
+
+/* ===== Cloud-Sync (Supabase, optional) =====
+   Solange SUPABASE_URL/SUPABASE_ANON_KEY Platzhalter sind, bleibt sb=null und die App
+   verhaelt sich exakt wie vorher (rein lokal). Sobald echte Werte eingetragen sind,
+   aktiviert sich der Sync automatisch — kein weiterer Codeeingriff noetig. */
+const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
+const SYNC_KEY = 'termine_sync_code';
+let syncCode = (()=>{ try { return localStorage.getItem(SYNC_KEY) || ''; } catch(e){ return ''; } })();
+let sb = null;
+try {
+  if (SUPABASE_URL.indexOf('YOUR-PROJECT') === -1 && window.supabase) {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+} catch(e){}
+let syncChannel = null;
+let pushTimer = null;
+
+function setSyncDot(state){
+  const d = document.getElementById('sync-dot');
+  if (!d) return;
+  d.className = 'sync-dot' + (state ? ' ' + state : '');
+  const titles = {off:'Cloud-Sync: aus', on:'Cloud-Sync: aktiv', syncing:'Sync läuft…', err:'Sync-Fehler (Daten bleiben lokal erhalten)'};
+  d.title = titles[state || 'off'];
+}
+
+async function pullRemote(){
+  if (!sb || !syncCode) return;
+  setSyncDot('syncing');
+  try {
+    const { data: row, error } = await sb.from('termine_sync').select('data,updated_at').eq('id', syncCode).maybeSingle();
+    if (error) throw error;
+    if (row && row.data) { data = mergeData(data, row.data); save(); render(); }
+    setSyncDot('on');
+  } catch(e){ setSyncDot('err'); }
+}
+async function pushRemote(){
+  if (!sb || !syncCode) return;
+  setSyncDot('syncing');
+  try {
+    const { error } = await sb.from('termine_sync').upsert({ id: syncCode, data, updated_at: new Date().toISOString() });
+    if (error) throw error;
+    setSyncDot('on');
+  } catch(e){ setSyncDot('err'); }
+}
+function pushRemoteSoon(){
+  if (!sb || !syncCode) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(()=>{ pushTimer = null; pushRemote(); }, 600);
+}
+function subscribeRealtime(){
+  if (!sb || !syncCode) return;
+  if (syncChannel) { try { sb.removeChannel(syncChannel); } catch(e){} syncChannel = null; }
+  syncChannel = sb.channel('termine-sync-' + syncCode)
+    .on('postgres_changes', { event:'*', schema:'public', table:'termine_sync', filter:'id=eq.' + syncCode }, payload => {
+      const remote = payload.new && payload.new.data;
+      if (remote) { data = mergeData(data, remote); save(); render(); }
+    })
+    .subscribe();
+}
+function startSync(){
+  if (!sb || !syncCode) { setSyncDot('off'); return; }
+  pullRemote().then(subscribeRealtime);
+}
+function generateSyncCode(){
+  const code = (crypto.randomUUID ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2))).replace(/-/g, '');
+  syncCode = code;
+  try { localStorage.setItem(SYNC_KEY, code); } catch(e){}
+  renderSyncPanel();
+  startSync();
+  pushRemote();
+}
+function connectSyncCode(input){
+  const val = (input.value || '').trim();
+  if (!val) return;
+  syncCode = val;
+  try { localStorage.setItem(SYNC_KEY, val); } catch(e){}
+  renderSyncPanel();
+  startSync();
+}
+function disconnectSync(){
+  if (!confirm('Cloud-Sync trennen? Deine lokalen Daten bleiben erhalten, werden aber nicht mehr mit anderen Geräten abgeglichen.')) return;
+  try { localStorage.removeItem(SYNC_KEY); } catch(e){}
+  if (syncChannel) { try { sb.removeChannel(syncChannel); } catch(e){} syncChannel = null; }
+  syncCode = '';
+  setSyncDot('off');
+  renderSyncPanel();
+}
+function toggleSyncPanel(){ document.getElementById('sync-acc').classList.toggle('open'); }
+function renderSyncPanel(){
+  const el = document.getElementById('sync-panel');
+  if (!el) return;
+  if (!sb) {
+    el.innerHTML = '<div class="sync-status">Cloud-Sync ist in dieser Version noch nicht eingerichtet.</div>';
+    return;
+  }
+  if (!syncCode) {
+    el.innerHTML =
+      '<div class="sync-status">Noch nicht verbunden — auf jedem Gerät denselben Code hinterlegen.</div>' +
+      '<div class="sync-row"><button onclick="generateSyncCode()">Neuen Code erzeugen</button></div>' +
+      '<div class="sync-row"><input type="text" id="sync-code-input" placeholder="Code von anderem Gerät einfügen">' +
+      '<button class="secondary" onclick="connectSyncCode(document.getElementById(\'sync-code-input\'))">Verbinden</button></div>';
+  } else {
+    el.innerHTML =
+      '<div class="sync-status">Cloud-Sync aktiv — Code fürs nächste Gerät:</div>' +
+      '<div class="sync-row"><input type="text" readonly value="' + esc(syncCode) + '" onclick="this.select()">' +
+      '<button class="secondary" onclick="navigator.clipboard && navigator.clipboard.writeText(\'' + esc(syncCode) + '\')">Kopieren</button></div>' +
+      '<div class="sync-row"><button class="secondary" onclick="disconnectSync()">Sync trennen</button></div>';
+  }
+}
 
 const proj = id => data.projects.find(p => p.id === id);
 
@@ -933,6 +1060,9 @@ applyTheme(false);
 document.body.classList.add('boot');
 render();
 setTimeout(()=>document.body.classList.remove('boot'), 1000);
+renderSyncPanel();
+setSyncDot(syncCode ? 'syncing' : 'off');
+startSync();
 
 if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
   navigator.serviceWorker.register('./sw.js').catch(()=>{});
