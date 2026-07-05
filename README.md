@@ -10,7 +10,9 @@ Persönliche Terminübersicht für Lüftungsprojekte — eine schlanke, offline-
 - **Termine bearbeiten**: Tippen auf einen Termin öffnet das vorbefüllte Formular.
 - **In Kalender übernehmen**: pro Termin eine `.ics`-Datei mit Erinnerungen (1 Tag und 1 Std vorher) für Outlook/Handy-Kalender — so klingelt es auch, wenn die App zu ist.
 - **5 Terminarten** mit fester Farbcodierung: Start / Klärung, Planung, Beschaffung, Montage, Abschluss.
-- **Live-Countdown** pro Termin: `3T 04Std` ab 1 Tag, `HH:MM` (rot) unter 24 Std, `Überfällig` (rot, pulsierend) nach Ablauf — aktualisiert sich automatisch.
+- **Montage-Termine** mit Zusatzangaben: Monteur sowie beliebig viele Lieferungen (Lieferant + Ankunft, je mit eigenem Countdown).
+- **Objekt & Kontakte** pro Projekt: Adresse mit Google-Maps-Knopf, Kontakte (Bauleitung, Elektriker, …) mit Direktanruf-Link.
+- **Live-Timer** pro Termin, sekündlich tickend mit Stoppuhr-Symbol: `3T 04:12:33` ab 1 Tag, `HH:MM:SS` (rot) unter 24 Std, `Überfällig` (rot, pulsierend) nach Ablauf.
 - **Dark Mode**: automatisch nach Systemeinstellung, umschaltbar im Header (Automatisch / Dunkel / Hell).
 - **Kein endgültiges Löschen**: Termine werden archiviert, Notizen als gelöscht markiert — beides jederzeit wiederherstellbar.
 - **Backup**: Daten als JSON exportieren/importieren (Links am Seitenende). Der Import **führt zusammen** statt zu ersetzen — bei Konflikten gewinnt der neuere Stand, gelöscht wird nichts; so lässt sich auch zwischen Handy und PC abgleichen.

@@ -120,8 +120,9 @@ button:active{transform:scale(.94);}
 .home-row .rt{flex:1;min-width:0;}
 .home-row .rt-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .home-row .rt-proj{font-size:11.5px;color:var(--ink-500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.home-row .rt-count{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14.5px;flex:0 0 auto;text-align:right;}
+.home-row .rt-count{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13.5px;flex:0 0 auto;display:flex;align-items:center;gap:4px;}
 .home-row .rt-count.urgent{color:var(--signal-urgent);}
+.cd-ico{opacity:.5;flex:0 0 auto;}
 
 /* Abhaken */
 .check-btn{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line-200);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:transparent;flex:0 0 auto;padding:0;}
@@ -140,7 +141,7 @@ button:active{transform:scale(.94);}
 .project.closed{opacity:.65;}
 .project-head{display:flex;align-items:center;gap:10px;padding:14px 15px;cursor:pointer;}
 .project-head .pname{flex:1;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14.5px;overflow-wrap:anywhere;}
-.project-head .pbadge{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-500);background:var(--paper-100);padding:3px 8px;border-radius:7px;white-space:nowrap;}
+.project-head .pbadge{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-500);background:var(--paper-100);padding:3px 8px;border-radius:7px;white-space:nowrap;display:flex;align-items:center;gap:4px;}
 .project-head .pbadge.urgent{color:var(--signal-urgent);background:var(--urgent-bg);}
 
 .project-body{padding:0 15px 16px;}
@@ -160,8 +161,30 @@ button:active{transform:scale(.94);}
 .termin-row .tr-bem{font-size:11.5px;color:var(--ink-500);margin-top:4px;font-style:italic;overflow-wrap:anywhere;}
 .termin-row .tr-side{display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex:0 0 auto;}
 .termin-row .tr-actions{display:flex;gap:7px;align-items:center;}
-.termin-row .tr-count{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;flex:0 0 auto;}
+.termin-row .tr-count{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;flex:0 0 auto;display:flex;align-items:center;gap:4px;}
 .termin-row .tr-count.urgent{color:var(--signal-urgent);}
+.tr-extra{font-size:11.5px;color:var(--ink-500);margin-top:5px;display:flex;align-items:center;gap:5px;}
+.tr-extra svg{flex:0 0 auto;opacity:.7;}
+.tr-lief{font-size:11px;color:var(--ink-500);margin-top:4px;display:flex;align-items:center;gap:6px;background:var(--paper-100);border-radius:7px;padding:4px 8px;}
+.tr-lief svg{flex:0 0 auto;opacity:.7;}
+.tr-lief .tl-name{font-weight:600;color:var(--ink-900);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tr-lief .tl-count{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-weight:600;display:flex;align-items:center;gap:3px;flex:0 0 auto;}
+.tr-lief.urgent .tl-count{color:var(--signal-urgent);}
+.mf-lief-row{display:flex;gap:6px;align-items:center;}
+.mf-lief-row .lief-name{flex:1.3;min-width:0;}
+.mf-lief-row input[type="date"],.mf-lief-row input[type="time"]{flex:1;min-width:0;}
+.mf-montage{display:flex;flex-direction:column;gap:7px;padding-top:7px;border-top:1px dashed var(--line-200);margin-top:2px;}
+.addr-row{display:flex;gap:7px;align-items:center;margin-bottom:8px;}
+.addr-row input{flex:1;padding:8px 10px;border:1px solid var(--line-200);border-radius:9px;font-size:12.5px;background:var(--paper-100);color:inherit;font-family:inherit;}
+.addr-row .icon-btn.maps:hover{color:var(--accent-planung);}
+.kontakt-row{display:flex;align-items:center;gap:8px;padding:6px 2px;border-bottom:1px solid var(--line-200);font-size:12.5px;}
+.kontakt-row:last-of-type{border-bottom:none;}
+.kontakt-row .k-name{font-weight:600;flex:1;min-width:0;overflow-wrap:anywhere;}
+.kontakt-row .k-tel{color:var(--ink-500);text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+.kontakt-row .icon-btn.call{color:var(--signal-done);}
+.kontakt-row .icon-btn.call:hover{color:var(--signal-done);opacity:.75;}
+.kform{display:flex;gap:6px;align-items:center;margin:6px 0;}
+.kform input{flex:1;min-width:0;padding:8px 9px;border:1px solid var(--line-200);border-radius:8px;font-size:12.5px;background:var(--input-bg);color:inherit;font-family:inherit;}
 .icon-btn{background:none;border:none;cursor:pointer;color:var(--ink-300);padding:2px;flex:0 0 auto;display:flex;align-items:center;}
 .icon-btn:hover{color:var(--signal-urgent);}
 .icon-btn.restore:hover{color:var(--accent-planung);}
@@ -348,9 +371,13 @@ function readout(dateStr){
   const days  = Math.floor(ms / 86400000);
   const hours = Math.floor((ms % 86400000) / 3600000);
   const mins  = Math.floor((ms % 3600000) / 60000);
-  if (days >= 1) return {text:`${days}T ${String(hours).padStart(2,'0')}Std`, urgent:false, overdue:false};
-  return {text:`${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}`, urgent:true, overdue:false};
+  const secs  = Math.floor((ms % 60000) / 1000);
+  const hms = `${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+  if (days >= 1) return {text:`${days}T ${hms}`, urgent:false, overdue:false};
+  return {text:hms, urgent:true, overdue:false};
 }
+// Stoppuhr-Symbol vor jedem Countdown — macht den Live-Timer als solchen erkennbar
+const CLOCK_SVG = '<svg class="cd-ico" width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M9.5 2h5M12 2v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="14.5" r="7.5" stroke="currentColor" stroke-width="2.2"/><path d="M12 14.5l3-2.6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
 function groupOf(dateStr){
   const now = new Date(), d = new Date(dateStr);
   if (d < now) return 'overdue';
@@ -370,19 +397,20 @@ function fmtNoteDate(dateStr){
   return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')} · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
 }
 
-// Countdown-Aktualisierung: Home neu aufbauen (Gruppen bleiben korrekt),
-// restliche Anzeigen ohne DOM-Neuaufbau nachführen
-function tick(){
-  renderHome();
-  document.querySelectorAll('#projects [data-count]').forEach(el => {
+// Sekündlich: nur Countdown-Texte nachführen (kein DOM-Neuaufbau).
+// Minütlich: Home neu aufbauen, damit die Gruppen (Heute/Morgen/…) korrekt bleiben.
+function updateCounts(){
+  document.querySelectorAll('[data-count]').forEach(el => {
     const r = readout(el.dataset.count);
     el.textContent = r.text;
-    el.classList.toggle('urgent', r.urgent);
-    el.classList.toggle('overdue', r.overdue);
+    const host = el.closest('.rt-count, .tr-count, .pbadge, .tr-lief') || el;
+    host.classList.toggle('urgent', r.urgent);
+    host.classList.toggle('overdue', r.overdue);
   });
 }
-setInterval(tick, 30000);
-document.addEventListener('visibilitychange', ()=>{ if (!document.hidden) tick(); });
+setInterval(updateCounts, 1000);
+setInterval(()=>{ renderHome(); }, 60000);
+document.addEventListener('visibilitychange', ()=>{ if (!document.hidden){ renderHome(); updateCounts(); } });
 
 /* ===== Animations-Helfer ===== */
 function collapseOut(el, cb){
@@ -394,7 +422,8 @@ function collapseOut(el, cb){
   setTimeout(cb, 400);
 }
 function popIn(selector){
-  requestAnimationFrame(()=>document.querySelectorAll(selector).forEach(el=>el.classList.add('pop-in')));
+  // setTimeout statt requestAnimationFrame: rAF feuert in Hintergrund-Tabs nicht
+  setTimeout(()=>document.querySelectorAll(selector).forEach(el=>el.classList.add('pop-in')), 20);
 }
 
 /* ===== Rendern ===== */
@@ -432,7 +461,7 @@ function renderHome(){
         <div class="rt-title">${esc(t.titel)}</div>
         <div class="rt-proj">${esc(p.name)}</div>
       </div>
-      <div class="rt-count ${r.urgent?'urgent':''} ${r.overdue?'overdue':''}" data-count="${esc(t.datum)}">${r.text}</div>
+      <div class="rt-count ${r.urgent?'urgent':''} ${r.overdue?'overdue':''}">${CLOCK_SVG}<span data-count="${esc(t.datum)}">${r.text}</span></div>
       <button class="check-btn" onclick="event.stopPropagation();completeTermin(this,'${p.id}','${t.id}')" title="Erledigt – archivieren">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
@@ -486,7 +515,7 @@ function projectHtml(p, idx){
   return `<div class="project ${p.closed?'closed':''}" id="proj-${p.id}" style="--i:${idx}">
     <div class="project-head" onclick="toggleProject('${p.id}')">
       <div class="pname">${esc(p.name)}</div>
-      ${next && !p.closed ? `<div class="pbadge ${nb.urgent?'urgent':''} ${nb.overdue?'overdue':''}" data-count="${esc(next.datum)}">${nb.text}</div>` : ''}
+      ${next && !p.closed ? `<div class="pbadge ${nb.urgent?'urgent':''} ${nb.overdue?'overdue':''}">${CLOCK_SVG}<span data-count="${esc(next.datum)}">${nb.text}</span></div>` : ''}
       <svg class="chev" style="${isOpen?'transform:rotate(180deg)':''}" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
     </div>
     <div class="acc ${isOpen?'open':''}"><div class="acc-inner"><div class="project-body">
@@ -494,6 +523,22 @@ function projectHtml(p, idx){
       <div class="block">
         <div class="block-label">Projektinfo</div>
         <textarea class="info-text" oninput="updateInfo('${p.id}', this.value)" placeholder="Kurze Eckdaten…">${esc(p.info)}</textarea>
+      </div>
+
+      <div class="block">
+        <div class="block-label">Objekt &amp; Kontakte</div>
+        <div class="addr-row">
+          <input type="text" placeholder="Objekt-Adresse…" value="${esc(p.adresse || '')}" oninput="updateAdresse('${p.id}', this.value)">
+          <button class="icon-btn maps" onclick="openMaps('${p.id}')" title="In Google Maps öffnen"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.6" stroke="currentColor" stroke-width="1.9"/></svg></button>
+        </div>
+        ${(p.kontakte || []).map(k => `<div class="kontakt-row">
+          <div class="k-name">${esc(k.name)}</div>
+          ${k.tel ? `<a class="k-tel" href="tel:${esc(String(k.tel).replace(/[^+0-9]/g,''))}">${esc(k.tel)}</a>
+          <a class="icon-btn call" href="tel:${esc(String(k.tel).replace(/[^+0-9]/g,''))}" title="Anrufen"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 4h4l1.5 4.5L8 10a13 13 0 0 0 6 6l1.5-2.5L20 15v4a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg></a>` : ''}
+          <button class="icon-btn" onclick="removeKontakt('${p.id}','${k.id}')" title="Entfernen"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+        </div>`).join('')}
+        <div id="kform-${p.id}"></div>
+        <div class="mini-add-toggle" style="margin-bottom:0;margin-top:6px;" onclick="openKontaktForm('${p.id}')">+ Kontakt (Bauleitung, Elektriker, …)</div>
       </div>
 
       <div class="block">
@@ -536,17 +581,26 @@ function projectHtml(p, idx){
   </div>`;
 }
 
+const WRENCH_SVG = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a4.5 4.5 0 0 0-6 5.6L3 17.6V21h3.4l5.7-5.7a4.5 4.5 0 0 0 5.6-6L14.5 12.5l-3-3 3.2-3.2z" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const TRUCK_SVG = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M1.5 5.5h12v11h-12zM13.5 9h4.5l3 3.5v4h-7.5" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="6" cy="18.5" r="1.9" stroke="currentColor" stroke-width="1.7"/><circle cx="17.5" cy="18.5" r="1.9" stroke="currentColor" stroke-width="1.7"/></svg>';
+
 function terminRowHtml(pid, t, isArchived){
   const r = readout(t.datum);
+  const liefs = t.lieferungen || [];
   return `<div class="termin-row ${isArchived?'archived':''}" data-tid="${t.id}" style="--cat-color:${catOf(t.kat).color}">
     <div class="tr-top">
       <div class="tr-main" ${isArchived ? '' : `onclick="editTermin('${pid}','${t.id}')" title="Bearbeiten"`}>
         <div class="tr-title">${esc(t.titel)}</div>
         <div class="tr-date">${fmtDate(t.datum)} · ${catOf(t.kat).label}</div>
         ${t.bem ? `<div class="tr-bem">${esc(t.bem)}</div>` : ''}
+        ${t.monteur ? `<div class="tr-extra">${WRENCH_SVG}Monteur: ${esc(t.monteur)}</div>` : ''}
+        ${liefs.map(l => {
+          const lr = readout(l.datum);
+          return `<div class="tr-lief ${lr.urgent?'urgent':''} ${lr.overdue?'overdue':''}">${TRUCK_SVG}<span class="tl-name">${esc(l.lieferant)}</span><span>${fmtDate(l.datum)}</span><span class="tl-count">${CLOCK_SVG}<span data-count="${esc(l.datum)}">${lr.text}</span></span></div>`;
+        }).join('')}
       </div>
       <div class="tr-side">
-        <div class="tr-count ${r.urgent?'urgent':''} ${r.overdue?'overdue':''}" data-count="${esc(t.datum)}">${r.text}</div>
+        <div class="tr-count ${r.urgent?'urgent':''} ${r.overdue?'overdue':''}">${CLOCK_SVG}<span data-count="${esc(t.datum)}">${r.text}</span></div>
         ${isArchived
           ? `<button class="icon-btn restore" onclick="restoreTermin('${pid}','${t.id}')" title="Wiederherstellen"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1 1 3 6.7M3 12V6m0 6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`
           : `<div class="tr-actions">
@@ -564,6 +618,37 @@ function toggleProject(id){
   renderProjects();
 }
 function updateInfo(pid, val){ const p = proj(pid); p.info = val; p.mtime = Date.now(); saveSoon(); }
+function updateAdresse(pid, val){ const p = proj(pid); p.adresse = val; p.mtime = Date.now(); saveSoon(); }
+function openMaps(pid){
+  const adr = (proj(pid).adresse || '').trim();
+  if (!adr){ alert('Zuerst eine Objekt-Adresse eingeben.'); return; }
+  window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(adr), '_blank');
+}
+function openKontaktForm(pid){
+  document.getElementById('kform-'+pid).innerHTML = `<div class="kform">
+    <input type="text" id="kf-name-${pid}" placeholder="Name / Rolle">
+    <input type="tel" id="kf-tel-${pid}" placeholder="Telefon" onkeydown="if(event.key==='Enter')saveKontakt('${pid}')">
+    <button class="icon-btn restore" onclick="saveKontakt('${pid}')" title="Speichern"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>`;
+  document.getElementById('kf-name-'+pid).focus();
+}
+function saveKontakt(pid){
+  const name = document.getElementById('kf-name-'+pid).value.trim();
+  const tel = document.getElementById('kf-tel-'+pid).value.trim();
+  if (!name) return;
+  const p = proj(pid);
+  if (!p.kontakte) p.kontakte = [];
+  p.kontakte.push({id:newId('k'), name, tel, mtime:Date.now()});
+  p.mtime = Date.now();
+  save(); renderProjects();
+}
+function removeKontakt(pid, kid){
+  if (!confirm('Kontakt entfernen?')) return;
+  const p = proj(pid);
+  p.kontakte = p.kontakte.filter(k => k.id !== kid);
+  p.mtime = Date.now();
+  save(); renderProjects();
+}
 
 function toggleAddProjectForm(){
   ui.showAddProject = !ui.showAddProject;
@@ -611,18 +696,44 @@ function openMiniForm(pid, tid){
     <div class="block-label" style="margin-bottom:0;">${t ? 'Termin bearbeiten' : 'Neuer Termin'}</div>
     <input type="text" id="mf-titel-${pid}" placeholder="Bezeichnung" value="${t ? esc(t.titel) : ''}" onkeydown="if(event.key==='Enter')saveTermin('${pid}','${tid||''}')">
     <div class="mf-row">
-      <select id="mf-kat-${pid}">${Object.entries(CATS).map(([k,v])=>`<option value="${k}" ${t && t.kat===k ? 'selected' : ''}>${v.label}</option>`).join('')}</select>
+      <select id="mf-kat-${pid}" onchange="mfKatChanged('${pid}')">${Object.entries(CATS).map(([k,v])=>`<option value="${k}" ${t && t.kat===k ? 'selected' : ''}>${v.label}</option>`).join('')}</select>
       <input type="date" id="mf-datum-${pid}" value="${dateVal}">
       <input type="time" id="mf-zeit-${pid}" value="${timeVal}">
     </div>
     <input type="text" id="mf-bem-${pid}" placeholder="Bemerkung (optional)" value="${t ? esc(t.bem) : ''}">
+    <div class="acc" id="mf-montage-acc-${pid}"><div class="acc-inner"><div class="mf-montage">
+      <input type="text" id="mf-monteur-${pid}" placeholder="Monteur (wer montiert?)" value="${t && t.monteur ? esc(t.monteur) : ''}">
+      <div class="block-label" style="margin-bottom:0;">Lieferungen</div>
+      <div id="mf-lief-list-${pid}" style="display:flex;flex-direction:column;gap:6px;"></div>
+      <div class="mini-add-toggle" style="margin-bottom:0;" onclick="addLiefRow('${pid}')">+ Lieferung hinzufügen</div>
+    </div></div></div>
     <div class="mf-actions">
       <button class="mf-cancel" onclick="closeMiniForm('${pid}')">Abbrechen</button>
       <button class="mf-save" onclick="saveTermin('${pid}','${tid||''}')">Speichern</button>
     </div>
   </div></div></div>`;
-  requestAnimationFrame(()=>document.getElementById('mfacc-'+pid).classList.add('open'));
+  (t && t.lieferungen ? t.lieferungen : []).forEach(l => addLiefRow(pid, l));
+  setTimeout(()=>{
+    document.getElementById('mfacc-'+pid)?.classList.add('open');
+    if (document.getElementById('mf-kat-'+pid)) mfKatChanged(pid);
+  }, 20);
   setTimeout(()=>document.getElementById(`mf-titel-${pid}`).focus(), 200);
+}
+// Montage-Zusatzfelder (Monteur + Lieferungen) ein-/ausklappen
+function mfKatChanged(pid){
+  const isMontage = document.getElementById('mf-kat-'+pid).value === 'montage';
+  document.getElementById('mf-montage-acc-'+pid).classList.toggle('open', isMontage);
+}
+function addLiefRow(pid, l){
+  const list = document.getElementById('mf-lief-list-'+pid);
+  const row = document.createElement('div');
+  row.className = 'mf-lief-row';
+  row.innerHTML = `<input type="text" class="lief-name" placeholder="Lieferant" value="${l ? esc(l.lieferant) : ''}">
+    <input type="date" class="lief-datum" value="${l ? l.datum.slice(0,10) : ''}">
+    <input type="time" class="lief-zeit" value="${l ? l.datum.slice(11,16) : '07:00'}">
+    <button class="icon-btn" onclick="this.parentElement.remove()" title="Entfernen"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>`;
+  list.appendChild(row);
+  if (!l) row.querySelector('.lief-name').focus();
 }
 function editTermin(pid, tid){
   openMiniForm(pid, tid);
@@ -641,13 +752,25 @@ function saveTermin(pid, tid){
   const zeit  = document.getElementById(`mf-zeit-${pid}`).value || '08:00';
   const bem   = document.getElementById(`mf-bem-${pid}`).value.trim();
   if (!titel || !datum){ alert('Bitte Bezeichnung und Datum ausfüllen.'); return; }
+  // Montage-Zusatz: Monteur + Lieferungen (nur bei Terminart Montage)
+  const isMontage = kat === 'montage';
+  const monteur = isMontage ? document.getElementById('mf-monteur-'+pid).value.trim() : '';
+  const lieferungen = [];
+  if (isMontage){
+    document.querySelectorAll('#mf-lief-list-'+pid+' .mf-lief-row').forEach(row => {
+      const name = row.querySelector('.lief-name').value.trim();
+      const ld = row.querySelector('.lief-datum').value;
+      const lz = row.querySelector('.lief-zeit').value || '07:00';
+      if (name && ld) lieferungen.push({id:newId('l'), lieferant:name, datum:`${ld}T${lz}:00`});
+    });
+  }
   let id = tid;
   if (tid){
     const t = proj(pid).termine.find(x => x.id === tid);
-    Object.assign(t, {titel, kat, datum:`${datum}T${zeit}:00`, bem, mtime:Date.now()});
+    Object.assign(t, {titel, kat, datum:`${datum}T${zeit}:00`, bem, monteur, lieferungen, mtime:Date.now()});
   } else {
     id = newId('t');
-    proj(pid).termine.push({id, titel, kat, datum:`${datum}T${zeit}:00`, bem, archived:false, mtime:Date.now()});
+    proj(pid).termine.push({id, titel, kat, datum:`${datum}T${zeit}:00`, bem, monteur, lieferungen, archived:false, mtime:Date.now()});
   }
   save(); render();
   popIn(`[data-tid="${id}"]`);
@@ -684,7 +807,12 @@ function buildIcs(t, projName){
   const loc = d => `${d.getFullYear()}${p2(d.getMonth()+1)}${p2(d.getDate())}T${p2(d.getHours())}${p2(d.getMinutes())}00`;
   const s = new Date();
   const stamp = `${s.getUTCFullYear()}${p2(s.getUTCMonth()+1)}${p2(s.getUTCDate())}T${p2(s.getUTCHours())}${p2(s.getUTCMinutes())}${p2(s.getUTCSeconds())}Z`;
-  const desc = [projName, t.bem].filter(Boolean).join(' — ');
+  const desc = [
+    projName,
+    t.bem,
+    t.monteur ? 'Monteur: ' + t.monteur : '',
+    ...(t.lieferungen || []).map(l => 'Lieferung ' + l.lieferant + ': ' + fmtDate(l.datum)),
+  ].filter(Boolean).join('\n');
   return [
     'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Termine und Projekte//DE','CALSCALE:GREGORIAN','METHOD:PUBLISH',
     'BEGIN:VEVENT',
@@ -772,9 +900,11 @@ function mergeData(local, imp){
     return {
       id,
       name: newer.name, info: newer.info, closed: !!newer.closed,
+      adresse: newer.adresse || '',
       mtime: Math.max(L.mtime || 0, I.mtime || 0),
       termine: mergeItems(L.termine || [], I.termine || []),
       notes: mergeItems(L.notes || [], I.notes || []),
+      kontakte: mergeItems(L.kontakte || [], I.kontakte || []),
     };
   })};
 }
