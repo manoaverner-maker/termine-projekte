@@ -1,5 +1,5 @@
 /* Service Worker — Offline-Cache für Termine & Projekte */
-const CACHE = 'termine-v3';
+const CACHE = 'termine-v4';
 const ASSETS = [
   './',
   './index.html',
